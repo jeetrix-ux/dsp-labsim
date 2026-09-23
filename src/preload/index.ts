@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
-import type { LabsimApi, MenuCommand } from '@shared/api'
+import type { BuildOutputLine, LabsimApi, MenuCommand } from '@shared/api'
 
 const api: LabsimApi = {
   getWorkspace: () => ipcRenderer.invoke('ws:get'),
@@ -12,6 +12,14 @@ const api: LabsimApi = {
     const handler = (_e: IpcRendererEvent, cmd: MenuCommand): void => cb(cmd)
     ipcRenderer.on('menu', handler)
     return () => ipcRenderer.removeListener('menu', handler)
+  },
+  getToolchain: () => ipcRenderer.invoke('build:toolchain'),
+  chooseCompiler: () => ipcRenderer.invoke('build:chooseCompiler'),
+  build: (projectDir, kind) => ipcRenderer.invoke('build:run', projectDir, kind),
+  onBuildOutput(cb) {
+    const handler = (_e: IpcRendererEvent, line: BuildOutputLine): void => cb(line)
+    ipcRenderer.on('build:output', handler)
+    return () => ipcRenderer.removeListener('build:output', handler)
   }
 }
 

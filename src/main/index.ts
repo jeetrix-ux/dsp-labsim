@@ -1,6 +1,9 @@
 import { app, BrowserWindow, dialog } from 'electron'
 import { homedir } from 'os'
 import { join } from 'path'
+import type { Toolchain } from '@shared/build'
+import type { ProgramImage } from '@shared/program'
+import { findToolchain } from './build/toolchain'
 import { registerIpc } from './ipc'
 import { buildMenu } from './menu'
 import { loadSettings, resolveWorkspace, saveSettings } from './settings'
@@ -9,6 +12,8 @@ if (process.env.LABSIM_USERDATA) app.setPath('userData', process.env.LABSIM_USER
 
 let mainWindow: BrowserWindow | null = null
 let workspace = ''
+let toolchain: Toolchain | null = null
+const images = new Map<string, ProgramImage>()
 const settingsFile = (): string => join(app.getPath('userData'), 'settings.json')
 
 function createWindow(): BrowserWindow {
@@ -40,14 +45,24 @@ function createWindow(): BrowserWindow {
 }
 
 void app.whenReady().then(async () => {
-  workspace = await resolveWorkspace(await loadSettings(settingsFile()), homedir(), process.env.LABSIM_WORKSPACE)
+  const settings = await loadSettings(settingsFile())
+  workspace = await resolveWorkspace(settings, homedir(), process.env.LABSIM_WORKSPACE)
+  // LABSIM_COMPILER_ROOT lets tests simulate a missing or custom compiler.
+  toolchain = await findToolchain(process.env.LABSIM_COMPILER_ROOT ?? settings.compilerRoot)
   registerIpc({
     getWorkspace: () => workspace,
     setWorkspace: async (dir) => {
       workspace = dir
       await saveSettings(settingsFile(), { ...(await loadSettings(settingsFile())), workspace: dir })
     },
-    getWindow: () => mainWindow
+    getWindow: () => mainWindow,
+    getToolchain: () => toolchain,
+    setCompilerRoot: async (root) => {
+      toolchain = await findToolchain(root)
+      await saveSettings(settingsFile(), { ...(await loadSettings(settingsFile())), compilerRoot: root })
+      return toolchain
+    },
+    images
   })
   buildMenu(() => mainWindow)
   mainWindow = createWindow()

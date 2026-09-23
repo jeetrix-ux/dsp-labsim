@@ -1,5 +1,5 @@
 import { createStore } from 'zustand/vanilla'
-import type { FileNode, LabsimApi, ProjectInfo } from '@shared/api'
+import type { BuildKind, BuildOutputLine, BuildResult, Diagnostic, FileNode, LabsimApi, ProjectInfo } from '@shared/api'
 import { basename, isTextFile } from '@shared/files'
 
 export type Perspective = 'edit' | 'debug'
@@ -22,6 +22,14 @@ export const MAIN_CONSOLE = 'DSP LabSim'
 
 export const isDirty = (t: EditorTab): boolean => t.content !== t.savedContent
 
+export const buildConsoleName = (projectDir: string): string => `CDT Build Console [${basename(projectDir)}]`
+
+const inside = (dir: string, file: string): boolean => {
+  const d = dir.toLowerCase()
+  const f = file.toLowerCase()
+  return f.startsWith(d + '\\') || f.startsWith(d + '/')
+}
+
 export interface AppState {
   workspace: string
   projects: ProjectInfo[]
@@ -36,6 +44,10 @@ export interface AppState {
   consoles: Record<string, ConsoleLine[]>
   activeConsole: string
   bottomTab: BottomTab
+  building: boolean
+  diagnostics: Diagnostic[]
+  /** Editor request to show a line; seq changes on every request. */
+  reveal: { path: string; line: number; seq: number } | null
 
   init(): Promise<void>
   refresh(): Promise<void>
@@ -54,6 +66,10 @@ export interface AppState {
   clearConsole(consoleName: string): void
   setActiveConsole(consoleName: string): void
   setBottomTab(tab: BottomTab): void
+  build(kind: BuildKind): Promise<BuildResult | null>
+  chooseCompiler(): Promise<void>
+  openAt(path: string, line: number): Promise<void>
+  appendBuildOutput(line: BuildOutputLine): void
 }
 
 export function createAppStore(api: LabsimApi) {
@@ -69,6 +85,9 @@ export function createAppStore(api: LabsimApi) {
     consoles: { [MAIN_CONSOLE]: [] },
     activeConsole: MAIN_CONSOLE,
     bottomTab: 'console',
+    building: false,
+    diagnostics: [],
+    reveal: null,
 
     async init() {
       const workspace = await api.getWorkspace()
@@ -76,6 +95,9 @@ export function createAppStore(api: LabsimApi) {
       set({ workspace, projects, trees: {}, expanded: {}, selectedProject: projects[0]?.dir ?? null })
       const n = projects.length
       get().print(MAIN_CONSOLE, `Workspace: ${workspace} (${n} project${n === 1 ? '' : 's'})`, 'info')
+      const tc = await api.getToolchain()
+      if (tc) get().print(MAIN_CONSOLE, `C6000 compiler: ${tc.root} (v${tc.version})`, 'info')
+      else get().print(MAIN_CONSOLE, 'C6000 compiler (cl6x) not found. Set it in Window > Preferences > C6000 Compiler Location.', 'error')
     },
 
     async refresh() {
@@ -113,8 +135,9 @@ export function createAppStore(api: LabsimApi) {
     },
 
     async openFile(path) {
+      const owner = get().projects.find((p) => inside(p.dir, path))
       if (get().tabs.some((t) => t.path === path)) {
-        set({ activeTab: path })
+        set({ activeTab: path, ...(owner ? { selectedProject: owner.dir } : {}) })
         return
       }
       if (!isTextFile(path)) {
@@ -130,7 +153,8 @@ export function createAppStore(api: LabsimApi) {
       }
       set((s) => ({
         tabs: [...s.tabs, { path, title: basename(path), content, savedContent: content }],
-        activeTab: path
+        activeTab: path,
+        ...(owner ? { selectedProject: owner.dir } : {})
       }))
     },
 
@@ -189,6 +213,44 @@ export function createAppStore(api: LabsimApi) {
 
     setBottomTab(bottomTab) {
       set({ bottomTab })
+    },
+
+    async build(kind) {
+      const dir = get().selectedProject
+      if (!dir || get().building) return null
+      // Mark the build as started before any await, so a second click cannot start another one.
+      const consoleName = buildConsoleName(dir)
+      set((s) => ({ building: true, consoles: { ...s.consoles, [consoleName]: [] }, activeConsole: consoleName, bottomTab: 'console' }))
+      try {
+        await get().saveAll()
+        const result = await api.build(dir, kind)
+        set({ diagnostics: result.diagnostics })
+        return result
+      } catch (e) {
+        get().print(consoleName, `Build failed: ${String(e)}`, 'error')
+        return null
+      } finally {
+        set({ building: false })
+      }
+    },
+
+    async chooseCompiler() {
+      try {
+        const tc = await api.chooseCompiler()
+        if (tc) get().print(MAIN_CONSOLE, `C6000 compiler: ${tc.root} (v${tc.version})`, 'info')
+      } catch (e) {
+        get().print(MAIN_CONSOLE, String(e), 'error')
+      }
+    },
+
+    async openAt(path, line) {
+      await get().openFile(path)
+      if (get().activeTab !== path) return
+      set((s) => ({ reveal: { path, line, seq: (s.reveal?.seq ?? 0) + 1 } }))
+    },
+
+    appendBuildOutput(line) {
+      get().print(line.console, line.text, line.kind)
     }
   }))
 }

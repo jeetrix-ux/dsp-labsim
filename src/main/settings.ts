@@ -3,6 +3,8 @@ import * as path from 'path'
 
 export interface Settings {
   workspace?: string
+  /** C6000 CGT root chosen by the user; auto-detected when absent. */
+  compilerRoot?: string
 }
 
 export async function loadSettings(file: string): Promise<Settings> {

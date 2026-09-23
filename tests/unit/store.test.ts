@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { FileNode, LabsimApi, MenuCommand, ProjectInfo } from '@shared/api'
-import { createAppStore, isDirty, MAIN_CONSOLE, type AppStore } from '../../src/renderer/src/store'
+import type { BuildKind, BuildResult, Diagnostic, FileNode, LabsimApi, MenuCommand, ProjectInfo, Toolchain } from '@shared/api'
+import { buildConsoleName, createAppStore, isDirty, MAIN_CONSOLE, type AppStore } from '../../src/renderer/src/store'
 
 const WS = 'C:\\ws'
 const P = `${WS}\\exp11`
@@ -8,14 +8,33 @@ const MAIN = `${P}\\main.c`
 const CMD = `${P}\\C6748.cmd`
 const OUT = `${P}\\Debug\\exp11.out`
 
-function fakeApi(): LabsimApi & { files: Record<string, string>; treeCalls: number; nextWorkspace: string | null } {
+type FakeApi = LabsimApi & {
+  files: Record<string, string>
+  treeCalls: number
+  nextWorkspace: string | null
+  buildCalls: [string, BuildKind][]
+  nextBuild: BuildResult
+  toolchain: Toolchain | null
+}
+
+function fakeApi(): FakeApi {
   const projects: ProjectInfo[] = [{ name: 'exp11', dir: P, isCcsProject: true }]
   const tree: FileNode[] = [
     { name: 'Debug', path: `${P}\\Debug`, kind: 'dir', children: [{ name: 'exp11.out', path: OUT, kind: 'file' }] },
     { name: 'C6748.cmd', path: CMD, kind: 'file' },
     { name: 'main.c', path: MAIN, kind: 'file' }
   ]
-  const api = {
+  const api: FakeApi = {
+    buildCalls: [],
+    nextBuild: { ok: true, diagnostics: [], image: null },
+    toolchain: { root: 'C:\\ti\\cgt', version: '8.3.12', cl6x: 'C:\\ti\\cgt\\bin\\cl6x.exe' },
+    getToolchain: async () => api.toolchain,
+    chooseCompiler: async () => api.toolchain,
+    build: async (dir: string, kind: BuildKind) => {
+      api.buildCalls.push([dir, kind])
+      return api.nextBuild
+    },
+    onBuildOutput: () => () => {},
     files: { [MAIN]: 'int main(void)\r\n{\r\n}\r\n', [CMD]: 'MEMORY {}' } as Record<string, string>,
     treeCalls: 0,
     nextWorkspace: null as string | null,
@@ -52,7 +71,10 @@ describe('init', () => {
     expect(s.workspace).toBe(WS)
     expect(s.projects.map((p) => p.name)).toEqual(['exp11'])
     expect(s.selectedProject).toBe(P)
-    expect(s.consoles[MAIN_CONSOLE].at(-1)).toEqual({ text: `Workspace: ${WS} (1 project)`, kind: 'info' })
+    expect(s.consoles[MAIN_CONSOLE].map((l) => l.text)).toEqual([
+      `Workspace: ${WS} (1 project)`,
+      'C6000 compiler: C:\\ti\\cgt (v8.3.12)'
+    ])
   })
 })
 
@@ -142,5 +164,63 @@ describe('perspective', () => {
   it('switches', () => {
     store.getState().setPerspective('debug')
     expect(store.getState().perspective).toBe('debug')
+  })
+})
+
+describe('compiler status', () => {
+  it('warns at startup when cl6x is missing', async () => {
+    api = fakeApi()
+    api.toolchain = null
+    store = createAppStore(api)
+    await store.getState().init()
+    expect(store.getState().consoles[MAIN_CONSOLE].at(-1)).toMatchObject({ kind: 'error' })
+    expect(store.getState().consoles[MAIN_CONSOLE].at(-1)?.text).toContain('not found')
+  })
+})
+
+describe('build', () => {
+  const ERR: Diagnostic = { file: MAIN, line: 2, severity: 'error', code: '20', message: 'identifier "y" is undefined' }
+
+  it('saves modified files, then builds the selected project into its build console', async () => {
+    await store.getState().openFile(MAIN)
+    store.getState().editTab(MAIN, 'changed')
+    api.nextBuild = { ok: false, diagnostics: [ERR], image: null }
+    const r = await store.getState().build('build')
+    expect(api.files[MAIN]).toBe('changed')
+    expect(api.buildCalls).toEqual([[P, 'build']])
+    expect(r?.ok).toBe(false)
+    const s = store.getState()
+    expect(s.diagnostics).toEqual([ERR])
+    expect(s.building).toBe(false)
+    expect(s.activeConsole).toBe(buildConsoleName(P))
+    expect(s.bottomTab).toBe('console')
+  })
+  it('clears the previous build console and appends streamed lines', async () => {
+    const name = buildConsoleName(P)
+    expect(name).toBe('CDT Build Console [exp11]')
+    store.getState().print(name, 'old')
+    const pending = store.getState().build('build')
+    store.getState().appendBuildOutput({ console: name, text: '<Linking>', kind: 'out' })
+    await pending
+    expect(store.getState().consoles[name].map((l) => l.text)).toEqual(['<Linking>'])
+  })
+  it('does nothing without a selected project', async () => {
+    store.setState({ selectedProject: null })
+    expect(await store.getState().build('build')).toBeNull()
+    expect(api.buildCalls).toEqual([])
+  })
+})
+
+describe('navigation', () => {
+  it('opening a file selects its project', async () => {
+    store.setState({ selectedProject: null })
+    await store.getState().openFile(MAIN)
+    expect(store.getState().selectedProject).toBe(P)
+  })
+  it('openAt opens the file and requests a reveal of the line', async () => {
+    await store.getState().openAt(MAIN, 7)
+    await store.getState().openAt(MAIN, 9)
+    expect(store.getState().activeTab).toBe(MAIN)
+    expect(store.getState().reveal).toEqual({ path: MAIN, line: 9, seq: 2 })
   })
 })

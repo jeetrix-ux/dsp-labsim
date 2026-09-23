@@ -20,9 +20,9 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
     {
       label: 'Project',
       submenu: [
-        { label: 'Build Project', accelerator: 'CmdOrCtrl+B', enabled: false },
-        { label: 'Rebuild Project', enabled: false },
-        { label: 'Clean...', enabled: false }
+        { label: 'Build Project', accelerator: 'CmdOrCtrl+B', click: send('project.build') },
+        { label: 'Rebuild Project', click: send('project.rebuild') },
+        { label: 'Clean...', click: send('project.clean') }
       ]
     },
     { label: 'Run', submenu: [{ label: 'Debug', accelerator: 'F11', enabled: false }] },
@@ -37,6 +37,7 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
             { label: 'CCS Debug', click: send('window.debugPerspective') }
           ]
         },
+        { label: 'Preferences', submenu: [{ label: 'C6000 Compiler Location...', click: send('window.compilerLocation') }] },
         { type: 'separator' },
         { role: 'toggleDevTools' },
         { role: 'reload' }
