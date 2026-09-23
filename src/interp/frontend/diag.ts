@@ -29,12 +29,26 @@ export class Diags {
     this.promoted = new Set(diagWarnings)
   }
 
+  /** Syntax errors the parser repaired in place (a missing `]` or `,`), which cl6x does not let hide usage warnings. */
+  private repairs = 0
+
   get errors(): number {
     return this.list.filter((d) => d.severity === 'error').length
   }
 
+  /** Errors other than repaired ones: what suppresses usage warnings for the declaration they occur in. */
+  get unrepaired(): number {
+    return this.errors - this.repairs
+  }
+
   error(at: Loc, [code, text]: Msg): void {
     this.push(at, 'error', code, text)
+  }
+
+  /** Reports a syntax error the parser repairs and carries on from. */
+  repaired(at: Loc, msg: Msg): void {
+    this.repairs++
+    this.error(at, msg)
   }
 
   warning(at: Loc, [code, text]: Msg): void {
@@ -63,6 +77,7 @@ const dis = (d: boolean, n: string): string => (d ? `${n}-D` : n)
 /** cl6x 8.3 diagnostics: number and exact text, checked against the real compiler. */
 export const M = {
   // lexical and preprocessing
+  noNewlineAtEnd: (): Msg => ['1-D', 'last line of file ends without a newline'],
   unrecognizedToken: (): Msg => ['7', 'unrecognized token'],
   missingQuote: (): Msg => ['8', 'missing closing quote'],
   unknownDirective: (): Msg => ['11-D', 'unrecognized preprocessing directive'],
@@ -96,7 +111,7 @@ export const M = {
   arraySizeNotPositive: (): Msg => ['95', 'the size of an array must be greater than zero'],
   redeclared: (name: string): Msg => ['102', `"${name}" has already been declared in the current scope`],
   incompatibleDecl: (decl: string, line: number): Msg => ['148', `declaration is incompatible with "${decl}" (declared at line ${line})`],
-  incompatibleImplicit: (name: string, line: number): Msg => ['148', `declaration is incompatible with previous "${name}" (declared at line ${line})`],
+  incompatibleImplicit: (name: string, line: number): Msg => ['161-D', `declaration is incompatible with previous "${name}" (declared at line ${line})`],
   alreadyInitialized: (name: string): Msg => ['150', `variable "${name}" has already been initialized`],
   functionRedefined: (name: string): Msg => ['247', `function "${name}" has already been defined`],
   implicitFunction: (name: string): Msg => ['225-D', `function "${name}" declared implicitly`],
@@ -143,6 +158,7 @@ export const M = {
   stringTooLong: (): Msg => ['2097-D', 'string literal too long -- excess characters ignored'],
   // usage
   unreferenced: (name: string): Msg => ['179-D', `variable "${name}" was declared but never referenced`],
+  labelUnreferenced: (name: string): Msg => ['179-D', `label "${name}" was declared but never referenced`],
   setNotUsed: (name: string): Msg => ['552-D', `variable "${name}" was set but never used`],
   // LabSim's own limits
   unsupported: (what: string): Msg => ['LABSIM', `LabSim: unsupported construct ${what}`]

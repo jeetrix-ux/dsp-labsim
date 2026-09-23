@@ -1,0 +1,3680 @@
+[
+ {
+  "name": "e1",
+  "source": "int main(void){ int a = b; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "20",
+    "message": "identifier \"b\" is undefined"
+   }
+  ]
+ },
+ {
+  "name": "e2",
+  "source": "int main(void){ int a = 1\n return a; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "66",
+    "message": "expected a \";\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"a\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "e3",
+  "source": "#include <math.io>\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "1965",
+    "message": "cannot open source file \"math.io\""
+   }
+  ]
+ },
+ {
+  "name": "e4",
+  "source": "int f(int a,int b){return a+b;}\nint main(void){ return f(1); }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "167",
+    "message": "too few arguments in function call"
+   }
+  ]
+ },
+ {
+  "name": "e5",
+  "source": "int f(int a){return a;}\nint main(void){ return f(1,2); }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "141",
+    "message": "too many arguments in function call"
+   }
+  ]
+ },
+ {
+  "name": "e6",
+  "source": "int main(void){ int a; int a; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "102",
+    "message": "\"a\" has already been declared in the current scope"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"a\" was declared but never referenced"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"a\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "e7",
+  "source": "int main(void){ 3 = 4; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "138",
+    "message": "expression must be a modifiable lvalue"
+   }
+  ]
+ },
+ {
+  "name": "e8",
+  "source": "int main(void){ int x = ; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   }
+  ]
+ },
+ {
+  "name": "e9",
+  "source": "int main(void){ foo(); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "225-D",
+    "message": "function \"foo\" declared implicitly"
+   }
+  ]
+ },
+ {
+  "name": "e10",
+  "source": "int main(void){ int *p; float f = 1; p = f; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "515",
+    "message": "a value of type \"float\" cannot be assigned to an entity of type \"int *\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"p\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "e11",
+  "source": "int main(void){ int a[3]; a = 0; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "138",
+    "message": "expression must be a modifiable lvalue"
+   }
+  ]
+ },
+ {
+  "name": "e12",
+  "source": "int main(void){ return (1 + 2; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "18",
+    "message": "expected a \")\""
+   }
+  ]
+ },
+ {
+  "name": "e13",
+  "source": "int main(void){ int x; x.y = 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "156",
+    "message": "expression must have struct or union type"
+   }
+  ]
+ },
+ {
+  "name": "e14",
+  "source": "struct S {int a;};\nint main(void){ struct S s; s.b = 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "137",
+    "message": "struct \"S\" has no field \"b\""
+   }
+  ]
+ },
+ {
+  "name": "e15",
+  "source": "int main(void){ int a[2] = {1,2,3}; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1238-D",
+    "message": "excess initializers are ignored"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"a\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "e16",
+  "source": "int main(void){ undefined_t x; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "20",
+    "message": "identifier \"undefined_t\" is undefined"
+   }
+  ]
+ },
+ {
+  "name": "e17",
+  "source": "int main(void){ for(int i=0;i<3;i++) {} return i; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "20",
+    "message": "identifier \"i\" is undefined"
+   }
+  ]
+ },
+ {
+  "name": "e18",
+  "source": "int main(void){ int x; x(); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "110",
+    "message": "expression preceding parentheses of apparent call must have (pointer-to-) function type"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"x\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "e19",
+  "source": "int main(void){ int *p; int x = *x; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "76",
+    "message": "operand of \"*\" must be a pointer"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"x\" is used before its value is set"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"p\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "e20",
+  "source": "int main(void){ break; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "117",
+    "message": "a break statement may only be used within a loop or switch"
+   }
+  ]
+ },
+ {
+  "name": "e21",
+  "source": "int main(void){ switch(1){ case 1: case 1: break;} return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "1851",
+    "message": "case label value has already appeared in this switch at line 1"
+   }
+  ]
+ },
+ {
+  "name": "e22",
+  "source": "int main(void){ const int c = 1; c = 2; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "138-D",
+    "message": "expression must be a modifiable lvalue"
+   }
+  ]
+ },
+ {
+  "name": "e23",
+  "source": "void f(void){}\nint main(void){ int x = f(); return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "145",
+    "message": "a value of type \"void\" cannot be used to initialize an entity of type \"int\""
+   }
+  ]
+ },
+ {
+  "name": "e24",
+  "source": "int main(void){ goto L; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "112-D",
+    "message": "statement is unreachable"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "115",
+    "message": "label \"L\" was referenced but not defined"
+   }
+  ]
+ },
+ {
+  "name": "e25",
+  "source": "int main(void){ int x = 1 return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "66",
+    "message": "expected a \";\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"x\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "e26",
+  "source": "int main(void){ return 0; ",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": null,
+    "severity": "error",
+    "code": "68",
+    "message": "expected a \"}\""
+   }
+  ]
+ },
+ {
+  "name": "e27",
+  "source": "int main(void){ int a; char *s = \"x\"; a = s; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "515-D",
+    "message": "a value of type \"char *\" cannot be assigned to an entity of type \"int\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"a\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "e28",
+  "source": "int main(void){ int x = 10 / 0; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "40-D",
+    "message": "division by zero"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"x\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "e29",
+  "source": "#if 1\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "38",
+    "message": "the #endif for this directive is missing"
+   }
+  ]
+ },
+ {
+  "name": "e30",
+  "source": "#error stop here\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "35",
+    "message": "#error directive: stop here"
+   }
+  ]
+ },
+ {
+  "name": "e31",
+  "source": "int main(void){ int a[-1]; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "95",
+    "message": "the size of an array must be greater than zero"
+   }
+  ]
+ },
+ {
+  "name": "e32",
+  "source": "int main(void){ printf(\"hi\n\"); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "225-D",
+    "message": "function \"printf\" declared implicitly"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "8",
+    "message": "missing closing quote"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "8",
+    "message": "missing closing quote"
+   },
+   {
+    "line": null,
+    "severity": "error",
+    "code": "18",
+    "message": "expected a \")\""
+   },
+   {
+    "line": null,
+    "severity": "error",
+    "code": "66",
+    "message": "expected a \";\""
+   },
+   {
+    "line": null,
+    "severity": "error",
+    "code": "68",
+    "message": "expected a \"}\""
+   }
+  ]
+ },
+ {
+  "name": "e33",
+  "source": "int main(void){ float f; f = sin(1.0); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "225-D",
+    "message": "function \"sin\" declared implicitly"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"f\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "e34",
+  "source": "int main(void){ int x; return 0 }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "66",
+    "message": "expected a \";\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"x\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "e35",
+  "source": "int main(void){ struct T t; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "71",
+    "message": "incomplete type is not allowed"
+   }
+  ]
+ },
+ {
+  "name": "e36",
+  "source": "int main(void){ int x = 1; x++ ++; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "138",
+    "message": "expression must be a modifiable lvalue"
+   }
+  ]
+ },
+ {
+  "name": "e37",
+  "source": "double f(double);\nint f(int x){return x;}\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "148",
+    "message": "declaration is incompatible with \"double f(double)\" (declared at line 1)"
+   },
+   {
+    "line": 3,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "e38",
+  "source": "int main(void){ int x; if (x) else x = 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"x\" is used before its value is set"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "128",
+    "message": "expected a statement"
+   }
+  ]
+ },
+ {
+  "name": "e39",
+  "source": "int main(void){ char c = 'ab'; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1696-D",
+    "message": "multicharacter character literal (potential portability problem)"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "70-D",
+    "message": "integer conversion resulted in truncation"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"c\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "e40",
+  "source": "int main(void){ int i; for (i = 0; i < 3; i++ { } return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "18",
+    "message": "expected a \")\""
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "128",
+    "message": "expected a statement"
+   }
+  ]
+ },
+ {
+  "name": "p1",
+  "source": "#foo\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "11-D",
+    "message": "unrecognized preprocessing directive"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "p2",
+  "source": "#endif\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "37",
+    "message": "the #if for this directive is missing"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "p3",
+  "source": "#else\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "37",
+    "message": "the #if for this directive is missing"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "p4",
+  "source": "#define F(a,b) a+b\nint main(void){return F(1);}",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "55-D",
+    "message": "too few arguments in invocation of macro \"F\""
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   }
+  ]
+ },
+ {
+  "name": "p5",
+  "source": "#define F(a) a\nint main(void){return F(1,2);}",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "56-D",
+    "message": "too many arguments in invocation of macro \"F\""
+   }
+  ]
+ },
+ {
+  "name": "p6",
+  "source": "#define X 1\n#define X 2\nint main(void){return X;}",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "48-D",
+    "message": "incompatible redefinition of macro \"X\" (declared at line 1)"
+   },
+   {
+    "line": 3,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "p7",
+  "source": "#include \"nothere.h\"\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "1965",
+    "message": "cannot open source file \"nothere.h\""
+   }
+  ]
+ },
+ {
+  "name": "p8",
+  "source": "#if 1 +\n#endif\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": 3,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "p9",
+  "source": "#define F(a) a\nint main(void){return F(1;}",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": null,
+    "severity": "error",
+    "code": "18",
+    "message": "expected a \")\""
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "276",
+    "message": "improperly terminated macro invocation"
+   },
+   {
+    "line": null,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": null,
+    "severity": "error",
+    "code": "66",
+    "message": "expected a \";\""
+   },
+   {
+    "line": null,
+    "severity": "error",
+    "code": "68",
+    "message": "expected a \"}\""
+   }
+  ]
+ },
+ {
+  "name": "p10",
+  "source": "int main(void){ int x = \"s\"; return x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "145-D",
+    "message": "a value of type \"char *\" cannot be used to initialize an entity of type \"int\""
+   }
+  ]
+ },
+ {
+  "name": "p11",
+  "source": "int f(int *p);\nint main(void){ float y; return f(&y); }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "169-D",
+    "message": "argument of type \"float *\" is incompatible with parameter of type \"int *\""
+   }
+  ]
+ },
+ {
+  "name": "p12",
+  "source": "int f(int *p);\nint main(void){ return f(3.0); }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "169",
+    "message": "argument of type \"double\" is incompatible with parameter of type \"int *\""
+   }
+  ]
+ },
+ {
+  "name": "p13",
+  "source": "int main(void){ return; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "118-D",
+    "message": "non-void function \"main\" should return a value"
+   }
+  ]
+ },
+ {
+  "name": "p14",
+  "source": "void f(void){ return 1; }\nint main(void){ f(); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "121-D",
+    "message": "return value type does not match the function type"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "p15",
+  "source": "int main(void){ int a = 1, b; b = a % 2.0; return b; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "31",
+    "message": "expression must have integral type"
+   }
+  ]
+ },
+ {
+  "name": "p16",
+  "source": "int main(void){ int *p, *q; int x = p + q; return x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "31",
+    "message": "expression must have integral type"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"p\" is used before its value is set"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"q\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "p17",
+  "source": "int main(void){ struct S {int a;} s; int x = s + 1; return x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "42",
+    "message": "expression must have arithmetic or pointer type"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"s\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "p18",
+  "source": "int main(void){ int a[2] = {1,2}; int b[2] = a; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "522-D",
+    "message": "initialization with \"{...}\" expected for aggregate object"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "145-D",
+    "message": "a value of type \"int *\" cannot be used to initialize an entity of type \"int\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"b\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "p19",
+  "source": "int main(void){ int x = sizeof(void); return x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "p20",
+  "source": "int f(void);\nint main(void){ return f; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "121-D",
+    "message": "return value type does not match the function type"
+   }
+  ]
+ },
+ {
+  "name": "p21",
+  "source": "int main(void){ int x; x = 3 ? ; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "54",
+    "message": "expected a \":\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"x\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "p22",
+  "source": "int main(void){ continue; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "116",
+    "message": "a continue statement may only be used within a loop"
+   }
+  ]
+ },
+ {
+  "name": "p23",
+  "source": "int main(void){ case 1: return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "122",
+    "message": "a case label may only be used within a switch"
+   }
+  ]
+ },
+ {
+  "name": "p24",
+  "source": "int main(void){ switch(1){ default: default: break; } return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "125",
+    "message": "default label has already appeared in this switch"
+   }
+  ]
+ },
+ {
+  "name": "p25",
+  "source": "int main(void){ L: L: return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "249",
+    "message": "label \"L\" has already been defined"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "label \"L\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "p26",
+  "source": "typedef int T;\nint main(void){ T = 3; return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "41",
+    "message": "expected an identifier"
+   }
+  ]
+ },
+ {
+  "name": "p27",
+  "source": "int main(void){ int x = 1; x->y = 2; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "45",
+    "message": "expression must have pointer type"
+   }
+  ]
+ },
+ {
+  "name": "p28",
+  "source": "struct S {int a;};\nint main(void){ struct S *p; p.a = 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "156",
+    "message": "expression must have struct or union type"
+   }
+  ]
+ },
+ {
+  "name": "p29",
+  "source": "struct S {int a;};\nint main(void){ struct S s; s->a = 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "45",
+    "message": "expression must have pointer type"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"s\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "p30",
+  "source": "int main(void){ float f = 1.5; int y = f << 2; return y; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "31",
+    "message": "expression must have integral type"
+   }
+  ]
+ },
+ {
+  "name": "p31",
+  "source": "int main(void){ int a[3]; int *p = &a; return *p; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "145-D",
+    "message": "a value of type \"int (*)[3]\" cannot be used to initialize an entity of type \"int *\""
+   }
+  ]
+ },
+ {
+  "name": "p32",
+  "source": "int main(void){ double d = 1.0; int *p = &d; return *p; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "145-D",
+    "message": "a value of type \"double *\" cannot be used to initialize an entity of type \"int *\""
+   }
+  ]
+ },
+ {
+  "name": "p33",
+  "source": "int x = 1;\nint x = 2;\nint main(void){return x;}",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "150",
+    "message": "variable \"x\" has already been initialized"
+   },
+   {
+    "line": 3,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "p34",
+  "source": "int main(void){ int a[2][3] = {{1,2,3},{4,5,6},{7}}; return a[0][0]; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1238-D",
+    "message": "excess initializers are ignored"
+   }
+  ]
+ },
+ {
+  "name": "p36",
+  "source": "int main(void){ unsigned char c = 300; return c; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "70-D",
+    "message": "integer conversion resulted in truncation"
+   }
+  ]
+ },
+ {
+  "name": "p37",
+  "source": "int main(void){ int a[3]; return a[5]; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "177-D",
+    "message": "subscript out of range"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"a\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "p38",
+  "source": "int f(int);\nint f(int x, int y){return x;}\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "148",
+    "message": "declaration is incompatible with \"int f(int)\" (declared at line 1)"
+   },
+   {
+    "line": 3,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "p39",
+  "source": "int main(void){ int x; float y; y = x % y; return 0;}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "31",
+    "message": "expression must have integral type"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"x\" is used before its value is set"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"y\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "p40",
+  "source": "int main(void){ int static_x = 0; while (1) ; return static_x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "112-D",
+    "message": "statement is unreachable"
+   }
+  ]
+ },
+ {
+  "name": "p41",
+  "source": "int main(void){ int i = 0; i = i++ + 1; return i; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "p42",
+  "source": "int main(void){ int x = 08; return x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "24",
+    "message": "invalid octal digit"
+   }
+  ]
+ },
+ {
+  "name": "p43",
+  "source": "int main(void){ int x = 1.0e; return x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "168",
+    "message": "invalid floating constant"
+   }
+  ]
+ },
+ {
+  "name": "p44",
+  "source": "int main(void){ char s[3] = \"abcd\"; return s[0]; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "2097-D",
+    "message": "string literal too long -- excess characters ignored"
+   }
+  ]
+ },
+ {
+  "name": "p45",
+  "source": "int main(void){ const char *s = \"a\"; s[0] = 'b'; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "138-D",
+    "message": "expression must be a modifiable lvalue"
+   }
+  ]
+ },
+ {
+  "name": "p46",
+  "source": "int main(void){ int x; &x = 0; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "138",
+    "message": "expression must be a modifiable lvalue"
+   }
+  ]
+ },
+ {
+  "name": "p47",
+  "source": "int main(void){ return @; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "7",
+    "message": "unrecognized token"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   }
+  ]
+ },
+ {
+  "name": "r1",
+  "source": "void f(void){ return 1; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "121-D",
+    "message": "return value type does not match the function type"
+   }
+  ]
+ },
+ {
+  "name": "r2",
+  "source": "int f(void){ return f; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "121-D",
+    "message": "return value type does not match the function type"
+   }
+  ]
+ },
+ {
+  "name": "r3",
+  "source": "struct S{int a;};\nint f(struct S s){ return s; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "121",
+    "message": "return value type does not match the function type"
+   }
+  ]
+ },
+ {
+  "name": "r4",
+  "source": "int *f(double d){ return d; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "121",
+    "message": "return value type does not match the function type"
+   }
+  ]
+ },
+ {
+  "name": "r5",
+  "source": "int *f(int d){ return d; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "121-D",
+    "message": "return value type does not match the function type"
+   }
+  ]
+ },
+ {
+  "name": "r6",
+  "source": "struct S{int a;};\nint main(void){ struct S s; int x = 1; s = x; return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "515",
+    "message": "a value of type \"int\" cannot be assigned to an entity of type \"struct S\""
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"s\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "r7",
+  "source": "struct S{int a;};\nint main(void){ struct S s; int x; x = s; return x; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "515",
+    "message": "a value of type \"struct S\" cannot be assigned to an entity of type \"int\""
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"s\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "r8",
+  "source": "struct S{int a;}; struct T{int a;};\nint main(void){ struct S s; struct T t; s = t; return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "515",
+    "message": "a value of type \"struct T\" cannot be assigned to an entity of type \"struct S\""
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"t\" is used before its value is set"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"s\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "r9",
+  "source": "int main(void){ int *p; char *q = 0; p = q; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "515-D",
+    "message": "a value of type \"char *\" cannot be assigned to an entity of type \"int *\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"p\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "r10",
+  "source": "int main(void){ int *p; void *q = 0; p = q; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"p\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "r11",
+  "source": "int main(void){ int *p = 0; float f = 1; f = p; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "515",
+    "message": "a value of type \"int *\" cannot be assigned to an entity of type \"float\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"f\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "r12",
+  "source": "void g(float *); int main(void){ int x; g(x); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "169-D",
+    "message": "argument of type \"int\" is incompatible with parameter of type \"float *\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"x\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "r13",
+  "source": "struct S{int a;}; void g(int); int main(void){ struct S s; g(s); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "169",
+    "message": "argument of type \"struct S\" is incompatible with parameter of type \"int\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"s\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "r14",
+  "source": "int main(void){ const int x = 1; int *p = &x; return *p; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "145-D",
+    "message": "a value of type \"const int *\" cannot be used to initialize an entity of type \"int *\""
+   }
+  ]
+ },
+ {
+  "name": "r15",
+  "source": "int main(void){ float x = 1; x %= 2; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "31",
+    "message": "expression must have integral type"
+   }
+  ]
+ },
+ {
+  "name": "r16",
+  "source": "int main(void){ int a[3]; a++; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "138",
+    "message": "expression must be a modifiable lvalue"
+   }
+  ]
+ },
+ {
+  "name": "r17",
+  "source": "int main(void){ void *p = 0; int x = *p; return x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "145",
+    "message": "a value of type \"void\" cannot be used to initialize an entity of type \"int\""
+   }
+  ]
+ },
+ {
+  "name": "r18",
+  "source": "int main(void){ int (*fp)(int) = 0; int x = fp(1,2); return x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "141",
+    "message": "too many arguments in function call"
+   }
+  ]
+ },
+ {
+  "name": "x1",
+  "source": "int n = 3;\nint a = n;\nint main(void){return a;}",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "28",
+    "message": "expression must have a constant value"
+   },
+   {
+    "line": 3,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "x2",
+  "source": "int main(void){ int a[0]; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"a\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "x3",
+  "source": "int main(void){ return _dotp2(1,2); }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "x4",
+  "source": "#warning careful\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1181-D",
+    "message": "#warning directive: careful"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "x5",
+  "source": "#if 1/0\n#endif\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "40",
+    "message": "division by zero"
+   },
+   {
+    "line": 3,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "x6",
+  "source": "int main(void){ int x = {1,2}; return x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1238-D",
+    "message": "excess initializers are ignored"
+   }
+  ]
+ },
+ {
+  "name": "x7",
+  "source": "struct S;\nint main(void){ return sizeof(struct S); }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "71",
+    "message": "incomplete type is not allowed"
+   }
+  ]
+ },
+ {
+  "name": "x8",
+  "source": "int main(void){ unsigned u = -1; return (int)u; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "69-D",
+    "message": "integer conversion resulted in a change of sign"
+   }
+  ]
+ },
+ {
+  "name": "x9",
+  "source": "int f(void){ }\nint main(void){ return f(); }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "994-D",
+    "message": "missing return statement at end of non-void function \"f\""
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "x10",
+  "source": "int main(void){ int x; x = 1; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"x\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "x11",
+  "source": "static int unused_global;\nint main(void){return 0;}",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"unused_global\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "x12",
+  "source": "int main(void){ static int s; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"s\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "x13",
+  "source": "int main(void){ int i; for (i=0;i<2;i++); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "x14",
+  "source": "int main(void){ int x = 1; x += 2; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "x15",
+  "source": "int main(void){ int x = 1; x++; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "x16",
+  "source": "int main(void){ int x; int *p = &x; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"p\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "x17",
+  "source": "int main(void){ int a[3]; a[0] = 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"a\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "x18",
+  "source": "int main(void){ int a[3]; return a[3]; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "177-D",
+    "message": "subscript out of range"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"a\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "y1",
+  "source": "int main(void){ int a[3; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "17",
+    "message": "expected a \"]\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"a\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "y2",
+  "source": "int main(void){ int x = 1; if x) x = 2; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "126",
+    "message": "expected a \"(\""
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "18",
+    "message": "expected a \")\""
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "128",
+    "message": "expected a statement"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"x\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "y3",
+  "source": "int main(void){ do x = 1; (0); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "20",
+    "message": "identifier \"x\" is undefined"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "113",
+    "message": "expected \"while\""
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "126",
+    "message": "expected a \"(\""
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "18",
+    "message": "expected a \")\""
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "66",
+    "message": "expected a \";\""
+   }
+  ]
+ },
+ {
+  "name": "y4",
+  "source": "int main(void){ int x; do { x = 1; } (0); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "113",
+    "message": "expected \"while\""
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "126",
+    "message": "expected a \"(\""
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "18",
+    "message": "expected a \")\""
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "66",
+    "message": "expected a \";\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"x\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "y5",
+  "source": "int main void){ return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "66",
+    "message": "expected a \";\""
+   }
+  ]
+ },
+ {
+  "name": "y6",
+  "source": "int main(void){ int = 3; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "41",
+    "message": "expected an identifier"
+   }
+  ]
+ },
+ {
+  "name": "y7",
+  "source": "int main(void){ struct { int a } s; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "66-D",
+    "message": "expected a \";\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"s\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "y8",
+  "source": "int f(int a int b){ return a; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "18",
+    "message": "expected a \")\""
+   }
+  ]
+ },
+ {
+  "name": "y9",
+  "source": "int main(void){ int x; x = (int 3; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "18",
+    "message": "expected a \")\""
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"x\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "y10",
+  "source": "int main(void){ int x[2] = {1 2}; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "255",
+    "message": "expected a \",\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"x\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "y11",
+  "source": "int main(void) return 0;",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "131",
+    "message": "expected a \"{\""
+   },
+   {
+    "line": null,
+    "severity": "error",
+    "code": "68",
+    "message": "expected a \"}\""
+   }
+  ]
+ },
+ {
+  "name": "y12",
+  "source": "int 3x;",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "19",
+    "message": "extra text after expected end of number"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "41",
+    "message": "expected an identifier"
+   }
+  ]
+ },
+ {
+  "name": "y13",
+  "source": "int main(void){ unsigned float x; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "85",
+    "message": "invalid combination of type specifiers"
+   }
+  ]
+ },
+ {
+  "name": "y14",
+  "source": "int main(void){ long long long x; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "85",
+    "message": "invalid combination of type specifiers"
+   }
+  ]
+ },
+ {
+  "name": "y15",
+  "source": "int main(void){ int x; x = sizeof int; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"x\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "y16",
+  "source": "enum E { A, B, A };",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "102",
+    "message": "\"A\" has already been declared in the current scope"
+   }
+  ]
+ },
+ {
+  "name": "y17",
+  "source": "int main(void){ int x; x = 1 +; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"x\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "y18",
+  "source": "int main(void){ switch (1) { case: break; } return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   }
+  ]
+ },
+ {
+  "name": "y19",
+  "source": "int main(void){ int a[2]; a[1.0] = 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "31",
+    "message": "expression must have integral type"
+   }
+  ]
+ },
+ {
+  "name": "y20",
+  "source": "int main(void){ int *p; p = malloc(4); return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "225-D",
+    "message": "function \"malloc\" declared implicitly"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "515-D",
+    "message": "a value of type \"int\" cannot be assigned to an entity of type \"int *\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"p\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "y21",
+  "source": "int main(void){ float f; f = 1.0 / 3; printf(\"%f\", f) return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "225-D",
+    "message": "function \"printf\" declared implicitly"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "66",
+    "message": "expected a \";\""
+   }
+  ]
+ },
+ {
+  "name": "y22",
+  "source": "int main(void){ int x = 1;; return x }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "66",
+    "message": "expected a \";\""
+   }
+  ]
+ },
+ {
+  "name": "z1",
+  "source": "int main(void){ int *p = 0; int x = -p; return x; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "32",
+    "message": "expression must have arithmetic type"
+   }
+  ]
+ },
+ {
+  "name": "z2",
+  "source": "struct S{int a;};\nint main(void){ struct S s; return !s; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "42",
+    "message": "expression must have arithmetic or pointer type"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"s\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "z3",
+  "source": "int main(void){ int *p = 0; return p == 1.0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "43",
+    "message": "operand types are incompatible (\"int *\" and \"double\")"
+   }
+  ]
+ },
+ {
+  "name": "z4",
+  "source": "struct S{int a;};\nint main(void){ struct S s; return (int)s; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "173",
+    "message": "invalid type conversion"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"s\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "z5",
+  "source": "int main(void){ int *p = &3; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "160",
+    "message": "expression must be an lvalue or a function designator"
+   }
+  ]
+ },
+ {
+  "name": "z6",
+  "source": "int main(void){ return 3[4]; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "143",
+    "message": "expression must have pointer-to-object type"
+   }
+  ]
+ },
+ {
+  "name": "z7",
+  "source": "int main(void){ void *p = 0; p++; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1219-D",
+    "message": "arithmetic on pointer to void or function type"
+   }
+  ]
+ },
+ {
+  "name": "z8",
+  "source": "int main(void){ int *p = 0; float *q = 0; return p == q; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "43-D",
+    "message": "operand types are incompatible (\"int *\" and \"float *\")"
+   }
+  ]
+ },
+ {
+  "name": "z9",
+  "source": "int main(void){ int *p = 0; return p < 1; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "43-D",
+    "message": "operand types are incompatible (\"int *\" and \"int\")"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "154-D",
+    "message": "conversion of nonzero integer to pointer"
+   }
+  ]
+ },
+ {
+  "name": "z10",
+  "source": "int main(void){ int x = 1; float *q = 0; x = 1 ? x : q; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "43-D",
+    "message": "operand types are incompatible (\"int\" and \"float *\")"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "515-D",
+    "message": "a value of type \"float *\" cannot be assigned to an entity of type \"int\""
+   }
+  ]
+ },
+ {
+  "name": "z11",
+  "source": "struct S{int a;};\nint main(void){ struct S s; if (s) return 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "42",
+    "message": "expression must have arithmetic or pointer type"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"s\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "z12",
+  "source": "struct S{int a;};\nint main(void){ struct S s; while (s) ; return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "42",
+    "message": "expression must have arithmetic or pointer type"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"s\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "z13",
+  "source": "struct S{int a;};\nint main(void){ struct S s; switch (s) { } return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "31",
+    "message": "expression must have integral type"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "551-D",
+    "message": "variable \"s\" is used before its value is set"
+   }
+  ]
+ },
+ {
+  "name": "z14",
+  "source": "int main(void){ float f = 1; switch (f) { } return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "31",
+    "message": "expression must have integral type"
+   }
+  ]
+ },
+ {
+  "name": "z15",
+  "source": "int main(void){ int x; int y = sizeof(main); return y; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"x\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "z16",
+  "source": "int main(void){ double d = (double)(int *)0; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "173",
+    "message": "invalid type conversion"
+   }
+  ]
+ },
+ {
+  "name": "z17",
+  "source": "int main(void){ int *p = (int *)1.5; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "173",
+    "message": "invalid type conversion"
+   }
+  ]
+ },
+ {
+  "name": "z18",
+  "source": "int f(int x){ return x; }\nint main(void){ return f(); }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "167",
+    "message": "too few arguments in function call"
+   }
+  ]
+ },
+ {
+  "name": "z19",
+  "source": "int main(void){ int a[3]; int *p = a; p = p * 2; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "32",
+    "message": "expression must have arithmetic type"
+   }
+  ]
+ },
+ {
+  "name": "z20",
+  "source": "int main(void){ int x; x = ~1.5; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "31",
+    "message": "expression must have integral type"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"x\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "z21",
+  "source": "int main(void){ int *p = 0; p += 1.5; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "31",
+    "message": "expression must have integral type"
+   }
+  ]
+ },
+ {
+  "name": "z22",
+  "source": "int main(void){ struct { int a; } s; s.a.b = 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "156",
+    "message": "expression must have struct or union type"
+   }
+  ]
+ },
+ {
+  "name": "z23",
+  "source": "union U { int a; };\nint main(void){ union U u; u.c = 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "137",
+    "message": "union \"U\" has no field \"c\""
+   }
+  ]
+ },
+ {
+  "name": "z24",
+  "source": "int main(void){ struct { int a; } s; s.c = 1; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "137",
+    "message": "struct \"<unnamed>\" has no field \"c\""
+   }
+  ]
+ },
+ {
+  "name": "z25",
+  "source": "void f(void);\nint main(void){ int x = f() + 1; return x; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "42",
+    "message": "expression must have arithmetic or pointer type"
+   }
+  ]
+ },
+ {
+  "name": "z26",
+  "source": "int main(void){ char s[] = {1,2,3}; char t[2] = \"ab\"; return s[0] + t[0]; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "z27",
+  "source": "int main(void){ int x = 1; int *p = x; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "145-D",
+    "message": "a value of type \"int\" cannot be used to initialize an entity of type \"int *\""
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "variable \"p\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "z28",
+  "source": "int main(void){ register int r = 1; int *p = &r; return *p; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "139-D",
+    "message": "taking the address of a register variable is not allowed"
+   }
+  ]
+ },
+ {
+  "name": "z29",
+  "source": "int x;\nfloat x;\nint main(void){ return 0; }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "error",
+    "code": "148",
+    "message": "declaration is incompatible with \"int x\" (declared at line 1)"
+   },
+   {
+    "line": 3,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "z30",
+  "source": "void g(int a[static 3]){}\nint main(void){ return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "29",
+    "message": "expected an expression"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "z31",
+  "source": "int main(void){ goto L; L2: ; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "error",
+    "code": "115",
+    "message": "label \"L\" was referenced but not defined"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "179-D",
+    "message": "label \"L2\" was declared but never referenced"
+   }
+  ]
+ },
+ {
+  "name": "z32",
+  "source": "int main(void){ int i; for (i = 0; ; ) break; return 0; }",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "552-D",
+    "message": "variable \"i\" was set but never used"
+   }
+  ]
+ },
+ {
+  "name": "i1",
+  "source": "int main(void){ f(); return 0; }\nvoid f(void){}",
+  "cl6x": [
+   {
+    "line": 1,
+    "severity": "warning",
+    "code": "225-D",
+    "message": "function \"f\" declared implicitly"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   },
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "161-D",
+    "message": "declaration is incompatible with previous \"f\" (declared at line 1)"
+   }
+  ]
+ },
+ {
+  "name": "i2",
+  "source": "#include <stdio.h>\n#include <math.h>\nint main(void){ int i; for (i = 0; i < 4; i++) printf(\"%d %f\\n\", i, sin(i * M_PI / 2)); return 0; }",
+  "cl6x": [
+   {
+    "line": 3,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ },
+ {
+  "name": "i3",
+  "source": "#include <c6x.h>\nint main(void){ unsigned t0, t1; TSCL = 0; t0 = TSCL; t1 = TSCL; return (int)(t1 - t0) + _dotp2(_pack2(1, 2), _pack2(3, 4)); }",
+  "cl6x": [
+   {
+    "line": 2,
+    "severity": "warning",
+    "code": "1-D",
+    "message": "last line of file ends without a newline"
+   }
+  ]
+ }
+]

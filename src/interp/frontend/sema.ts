@@ -360,14 +360,16 @@ export class Sema {
   }
 
   assign(target: Expr, value: Expr, at: Loc): Expr {
-    if (isErr(target, value)) return errorExpr(at)
+    if (isErr(target)) return errorExpr(at)
     if (!this.modifiable(target, at)) return errorExpr(at)
-    const v = this.convertFor(value, target.type, 'assign')
+    // cl6x counts `x = <erroneous expression>` as a store to x too.
     const stored = storedVar(target)
     if (stored) {
       stored.refs--
       stored.sets++
     }
+    if (isErr(value)) return errorExpr(at)
+    const v = this.convertFor(value, target.type, 'assign')
     return { k: 'assign', loc: at, type: unqual(target.type), target, value: v }
   }
 

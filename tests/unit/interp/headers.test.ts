@@ -26,7 +26,7 @@ const SUPPORTED = Object.keys(BUILTIN_HEADERS).filter((h) => h !== PRELUDE && !B
 function ours(): Map<string, Macro> {
   const src = SUPPORTED.map((h) => `#include <${h}>`).join('\n')
   const diags = new Diags()
-  const r = preprocess('/t/all.c', { readFile: (f) => (f === '/t/all.c' ? src : null), includePaths: [], defines: ['c6748'], dialect: 'c89' }, diags)
+  const r = preprocess('/t/all.c', { readFile: (f) => (f === '/t/all.c' ? src + '\n' : null), includePaths: [], defines: ['c6748'], dialect: 'c89' }, diags)
   expect(diags.list).toEqual([])
   return r.macros
 }

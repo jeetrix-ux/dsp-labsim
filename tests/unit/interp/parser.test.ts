@@ -11,7 +11,7 @@ const FILE = path.resolve('/proj/main.c')
 
 function parse(src: string, dialect: 'c89' | 'c99' = 'c89') {
   const diags = new Diags(['225'])
-  const pp = preprocess(FILE, { readFile: (f) => (f === FILE ? src : null), includePaths: [], defines: ['c6748'], dialect }, diags)
+  const pp = preprocess(FILE, { readFile: (f) => (f === FILE ? src + '\n' : null), includePaths: [], defines: ['c6748'], dialect }, diags)
   const unit = parseUnit(pp.tokens, { file: FILE, dialect, pragmas: pp.pragmas }, diags)
   return {
     unit,

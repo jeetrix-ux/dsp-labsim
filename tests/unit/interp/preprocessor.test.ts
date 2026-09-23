@@ -9,7 +9,7 @@ const NOW = new Date(2026, 8, 23, 12, 40, 11)
 function pp(files: Record<string, string>, extra: Partial<PreprocessOptions> = {}) {
   const diags = new Diags(['225'])
   const full = Object.fromEntries(Object.entries(files).map(([k, v]) => [path.isAbsolute(k) ? k : P(k), v]))
-  const r = preprocess(P('main.c'), { readFile: (f) => full[f] ?? null, includePaths: [], defines: ['c6748'], dialect: 'c89', now: NOW, ...extra }, diags)
+  const r = preprocess(P('main.c'), { readFile: (f) => (f in full ? full[f] + '\n' : null), includePaths: [], defines: ['c6748'], dialect: 'c89', now: NOW, ...extra }, diags)
   const text = r.tokens.filter((t) => t.kind !== 'eof' && !isBuiltinFile(t.file)).map((t) => t.text).join(' ')
   const codes = diags.list.map((d) => `${d.line ?? 'end'}:${d.code}`)
   return { r, text, codes, diags }
@@ -87,7 +87,7 @@ describe('directives', () => {
   })
   it('stops with fatal #1965 for a missing header, like cl6x', () => {
     const diags = new Diags()
-    const opts = { readFile: (f: string) => (f === P('main.c') ? '#include <math.io>\nint main(void){return 0;}' : null), includePaths: [], defines: [], dialect: 'c89' as const }
+    const opts = { readFile: (f: string) => (f === P('main.c') ? '#include <math.io>\nint main(void){return 0;}\n' : null), includePaths: [], defines: [], dialect: 'c89' as const }
     expect(() => preprocess(P('main.c'), opts, diags)).toThrow(FatalError)
     expect(diags.list).toEqual([{ file: P('main.c'), line: 1, severity: 'error', code: '1965', message: 'cannot open source file "math.io"', fatal: true }])
   })

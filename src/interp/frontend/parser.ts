@@ -510,7 +510,8 @@ class Parser {
           } else length = Number(v)
         }
       }
-      this.expect(']')
+      // cl6x reports a missing ']' and reads on as if it were there.
+      if (!this.accept(']')) this.diags.repaired(this.at(), M.expected(']'))
       const a = arrayOf(this.typeSuffix(t), length)
       if (vla) a.vla = { expr: vla, len: null }
       return a
@@ -580,7 +581,8 @@ class Parser {
     const prev = this.file.syms.get(name)
     if (prev?.kind === 'func') {
       if (!compatible(prev.type, type)) {
-        this.diags.error(at, prev.implicit ? M.incompatibleImplicit(name, prev.loc.line) : M.incompatibleDecl(typeToString(prev.type, name), prev.loc.line))
+        if (prev.implicit) this.diags.warning(at, M.incompatibleImplicit(name, prev.loc.line))
+        else this.diags.error(at, M.incompatibleDecl(typeToString(prev.type, name), prev.loc.line))
       } else if (!prev.type.prototyped && type.prototyped) prev.type = type
       this.scope.syms.set(name, prev)
       return prev
@@ -638,9 +640,9 @@ class Parser {
     }
     if (this.scope.syms.has(name)) this.diags.error(at, M.redeclared(name))
     // cl6x gives no usage warning for a variable whose own declaration or initializer is in error.
-    const errorsBefore = this.diags.errors
+    const errorsBefore = this.diags.unrepaired
     const quietIfErrors = (sym: VarSym): void => {
-      if (this.diags.errors > errorsBefore) sym.hidden = true
+      if (this.diags.unrepaired > errorsBefore) sym.hidden = true
     }
     if (spec.storage === 'static') {
       const sym = this.newVar(name, d.type, at, 'static')
@@ -710,6 +712,7 @@ class Parser {
         if (target) g.target = target
         else this.diags.error(g.loc, M.labelUndefined(g.label))
       }
+      for (const [label, s] of fn.labels) if (!fn.gotos.some((g) => g.label === label)) this.diags.warning(s.loc, M.labelUnreferenced(label))
       this.usageWarnings(fn.declared)
       const def: FunctionDef = { sym, params, body, locals: fn.locals, statics: fn.statics, loc: at, end: body.end }
       sym.def = def
@@ -750,7 +753,11 @@ class Parser {
       if (designators.length > 0 && !this.accept('=')) this.abort(M.expectedExpression())
       items.push({ designators, init: this.initializer() })
       if (this.accept(',')) continue
-      if (!this.is('}')) this.abort(M.expected(','))
+      if (!this.is('}')) {
+        // cl6x reports the missing comma and carries on with the next item.
+        this.diags.repaired(this.at(), M.expected(','))
+        if (this.is(';') || this.tok.kind === 'eof') throw ABORT
+      }
     }
     this.next()
     return { k: 'list', items, loc: this.at(open) }
@@ -805,7 +812,12 @@ class Parser {
     const vars: VarSym[] = []
     if (this.accept(';')) return { k: 'decl', loc: at, vars }
     for (;;) {
-      const v = this.declare(spec, this.declarator(spec.type, 'named'))
+      const errorsBefore = this.diags.unrepaired
+      const d = this.declarator(spec.type, 'named')
+      const badDeclarator = this.diags.unrepaired > errorsBefore
+      const v = this.declare(spec, d)
+      // No usage warning for a variable whose declarator is in error (cl6x).
+      if (v && badDeclarator) v.hidden = true
       if (v) {
         if (v.type.kind === 'array' && v.type.vla?.len) vars.push(v.type.vla.len)
         vars.push(v)

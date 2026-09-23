@@ -153,6 +153,9 @@ class Preprocessor {
     try {
       this.loop()
       for (const c of this.src.conds) this.diags.error(c.loc, M.endifMissing())
+      if (!isBuiltinFile(file) && text.length > 0 && !text.endsWith('\n')) {
+        this.diags.warning({ file, line: text.replace(/\r\n?/g, '\n').split('\n').length, col: 1 }, M.noNewlineAtEnd())
+      }
     } finally {
       this.depth--
       this.src = saved
