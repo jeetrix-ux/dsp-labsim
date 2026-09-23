@@ -4,6 +4,7 @@ import type { Loc } from '../frontend/diag'
 import type { Program } from '../frontend/program'
 import type { FunctionType } from '../frontend/types'
 import { Memory, Trap, hex } from './memory'
+import type { FrameScope } from './expr'
 import type { Placement } from './placement'
 
 /** CIO host file access. Paths are as the program wrote them; the implementation resolves them. */
@@ -88,6 +89,8 @@ export class Machine {
   readonly frames: Frame[] = []
   /** Every function that has an address: compiled user functions and the library functions in use. */
   readonly functions = new Map<number, Callable>()
+  /** Each compiled function's frame layout, for the debugger's Variables and Expressions. */
+  readonly scopes = new Map<FunctionDef, FrameScope>()
   /** Functions registered with atexit(), in order. */
   readonly atexit: number[] = []
   /** Run by exit() after the atexit functions: the RTS cleanup that flushes open streams. */

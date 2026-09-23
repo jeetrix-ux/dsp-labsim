@@ -67,7 +67,10 @@ export function loadProgram(program: Program, image: ProgramImage, io: RunIO, op
 
   placement.initialize()
   initRuntime(m)
-  for (const c of compiled) c.compile()
+  for (const c of compiled) {
+    c.compile()
+    m.scopes.set(c.def, c.scope)
+  }
   return m
 }
 

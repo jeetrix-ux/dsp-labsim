@@ -339,6 +339,7 @@ export class FunctionCode implements Callable {
   readonly fixed: number
   readonly variadic: boolean
   readonly type: FunctionType
+  scope!: FrameScope
   private body: Exec
   private frameSize = 0
   private params: (ParamSlot | null)[] = []
@@ -363,6 +364,7 @@ export class FunctionCode implements Callable {
     const m = this.m
     const def = this.def
     const frame = new FrameLayout(def)
+    this.scope = frame
     const block = new StmtCompiler(m, new ExprCompiler(m, frame), frame).stmt(def.body)
     const end = def.end
     this.body = () => {
