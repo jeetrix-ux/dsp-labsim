@@ -51,9 +51,8 @@ export function loadProgram(program: Program, image: ProgramImage, io: RunIO, op
     const known = libs.get(f.name)
     if (known) return known
     const lib = LIBRARY[f.name]
-    if (!lib || UNSUPPORTED.has(f.name)) {
-      throw new LoadError(`LabSim: unsupported construct ${f.name}() (not in LabSim's runtime library yet)`, at)
-    }
+    if (UNSUPPORTED.has(f.name)) throw new LoadError(`LabSim: unsupported construct ${f.name}() (LabSim cannot reproduce this intrinsic exactly yet)`, at)
+    if (!lib) throw new LoadError(`LabSim: unsupported construct ${f.name}() (not in LabSim's runtime library yet)`, at)
     const c: Callable = {
       name: f.name,
       fixed: lib.fixed,

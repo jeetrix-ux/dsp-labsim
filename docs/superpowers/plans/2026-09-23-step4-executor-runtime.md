@@ -5796,7 +5796,7 @@ math.h follows TI's RTS, not IEEE libm. Normal values use JS `Math`, and float v
 | `cosh` overflow | ±∞ with the sign of x, EDOM |
 | `exp` | 0 below ln(DBL_MIN), +∞ with ERANGE above ln(DBL_MAX) |
 
-- `erf`, `erfc`, `lgamma` and `tgamma` use series/Lanczos approximations, accurate to about 1e-14.
+- `erf`, `erfc`, `lgamma` and `tgamma` use series approximations (Taylor and continued fraction for erf, Stirling with a recurrence shift for gamma), accurate to about 1e-14.
 - `fma` is not fused.
 
 time.h:
