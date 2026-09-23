@@ -1,0 +1,3 @@
+@@ labsim: does not build
+"main.c", line 33: error #29: expected an expression
+"main.c", line 34: error #29: expected an expression

@@ -1,0 +1,8 @@
+Linear convolution
+y[0] =   1.00
+y[1] =   4.00
+y[2] =   8.00
+y[3] =  12.00
+y[4] =  11.00
+y[5] =   4.00
+@@ labsim: exit 0

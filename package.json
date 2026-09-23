@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "test": "vitest run",
     "test:e2e": "electron-vite build && playwright test",
+    "labsim": "vite build -c vite.cli.config.ts --logLevel warn && node out/cli/labsim.cjs",
     "postinstall": "node node_modules/electron/install.js"
   },
   "devDependencies": {

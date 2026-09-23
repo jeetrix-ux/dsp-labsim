@@ -1,0 +1,13 @@
+
+IIR Chebyshev-I LOW PASS  fp = 10 Hz (1 dB)
+fs = 100 Hz,  block length N = 100,  bin spacing = 1 Hz
+
+  bin  f(Hz)     |X[k]|      |Y[k]|
+  ---  -----   ---------   ---------
+    2    2.0     50.0000     45.1640
+   30   30.0     50.0000      2.7071
+
+  2 Hz  tone :   50.0000  ->    45.1640
+  30 Hz tone :   50.0000  ->     2.7071
+
+@@ labsim: exit 0

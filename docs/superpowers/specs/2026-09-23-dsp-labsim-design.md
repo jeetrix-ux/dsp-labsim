@@ -133,6 +133,11 @@ node by node. This targets at least 20 M simple statements/s, enough for a 1024-
 a 51-tap filter over 4096 samples in well under a second. Every statement node carries a
 source line. A statement-boundary hook (a counter check, cheap when nothing is armed)
 implements breakpoints, stepping and Suspend.
+A statement that has code sets the current line and increments the statement counter. The counter implements the
+step limit of headless runs, the TSC estimate and (Step 5) the debugger's pause checks. `goto` may jump to a label
+in any enclosing block. Jumping into a nested block, or a `case` label that is not a statement of its switch body,
+is a load error. Loads and stores ignore the low address bits alignment requires, as LDH/LDW/LDDW do. `_memN`
+intrinsics access any byte address.
 
 **Pause without async.** The executor runs synchronously in a worker. To stop, it posts
 `stopped{reason, line}` and blocks on `Atomics.wait` over a `SharedArrayBuffer` command
@@ -152,6 +157,32 @@ flag that the hook polls.
   labelled as such), `CSR` with C6748 CPU/rev IDs, `_dotp2 _pack2 _add2 _sub2 _mpy _mpyh
   _sadd _ssub _norm _lmbd _abs _extu _ext _set _clr _amem4 _mem4 _hi _lo _itod`, and
   similar, implemented bit-exactly from the C6000 intrinsics reference.
+
+**Fidelity to TI's RTS.** Where the board's console output depends on the library's implementation, LabSim ports
+TI's own source (`ti-cgt-c6000_8.3.12/lib/src`). The ported behaviour:
+
+- `printf`: digits come from repeated `value *= 10` with half-up rounding on one extra digit, so `%.2f` of 0.125 prints
+  `0.13`. `+inf` is printed for infinity, and `%p` prints bare hex.
+- stdout: a line-buffered stream whose 257-byte buffer is malloc'd from `.sysmem` on first use, so later `malloc`
+  addresses match the board. With too small a heap, `printf` prints nothing, and `abort()` loses unflushed text.
+- The `malloc` family: TI's size-ordered free list with 8-byte packet headers inside `.sysmem`.
+- `rand`/`srand`: TI's LCG. `qsort`/`bsearch` use TI's algorithms. `strcmp`/`memcmp` return byte differences, and the
+  ctype functions return `_ctypes_` bits.
+- math.h: JS `Math` for normal values (float versions rounded with `Math.fround`), with TI's edge behaviour: `sqrt(-1)`
+  is 0, `log(x≤0)` is −∞, `pow` overflow gives DBL_MAX, `asin(2)` clamps, `fmod(x,0)` is 0, `atan2(0,0)` is 0. The
+  last bit can differ from the board, because TI evaluates `sin`/`sqrt`/division with its own polynomial and Newton
+  code.
+
+Other runtime decisions:
+
+- `TSCL`/`TSCH` and `clock()` count 4 cycles per C statement executed (an estimate, which the console says once).
+- `CSR` reads 0x14000100 (C674x CPU ID 0x14, little-endian).
+- The C6000 intrinsics are bit-exact, except the Galois-field, complex-multiply and reciprocal-estimate ones
+  (`_gmpy4`, `_cmpy`, `_rcpsp`, …), which make the program fail to load with `LabSim: unsupported construct`
+  rather than return a guess.
+
+**LabSim region.** String literals, `_ftable`, `errno` and any object the image has no symbol for live in an otherwise
+unused region at 0x70000000. Static and unused library functions get code addresses from 0x71000000.
 
 ## Debug phase
 

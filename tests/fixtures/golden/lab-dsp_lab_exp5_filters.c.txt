@@ -1,0 +1,13 @@
+
+IIR Butterworth LOW PASS  fc = 10 Hz (3 dB)
+fs = 100 Hz,  block length N = 100,  bin spacing = 1 Hz
+
+  bin  f(Hz)     |X[k]|      |Y[k]|
+  ---  -----   ---------   ---------
+    2    2.0     50.0000     49.8363
+   30   30.0     50.0000      2.6246
+
+  2 Hz  tone :   50.0000  ->    49.8363
+  30 Hz tone :   50.0000  ->     2.6246
+
+@@ labsim: exit 0

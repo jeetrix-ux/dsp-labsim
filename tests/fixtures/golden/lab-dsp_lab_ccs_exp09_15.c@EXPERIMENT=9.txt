@@ -1,0 +1,28 @@
+=====================================================
+ EXP-9 : ARCHITECTURE STUDY - TMS320C6748 (C674x core)
+=====================================================
+CSR register            = 0x14000100
+  CPU ID                = 0x14
+  Revision ID           = 0x00
+  Endian (bit 8)        = LITTLE
+  GIE  (global int en)  = 0
+sizeof(char/short/int/long/float/double) = 1/2/4/4/4/8 bytes
+
+--- 64-tap dot product (MAC) benchmark ----------------
+float  MAC loop  : result =   0.000000   cycles = 536
+Q15    MAC loop  : result =          0   cycles = 536
+SIMD  _dotp2     : result =          0   cycles = 280
+SIMD speed-up over plain fixed loop = 1.91 x
+
+--- Key architectural features -----------------------
+Core            : C674x  = C64x+ (fixed) + C67x+ (float)
+Architecture    : VLIW, 8 functional units .L .S .M .D x 2 paths
+Register file   : 2 x 32 x 32-bit (A0-A31, B0-B31)
+Pipeline        : 4 fetch + 2 decode + up to 10 execute phases
+Memory          : Harvard, L1P 32KB, L1D 32KB, L2 256KB, 128KB shRAM
+Max clock       : 456 MHz  (3648 MMACS / 2746 MFLOPS)
+Addressing      : linear, circular (AMR), bit-reversed (for FFT)
+Peripherals     : McASP, McBSP, EDMA3, UART, SPI, I2C, uPP, EMIFA/DDR2
+=====================================================
+@@ labsim: note: TSCL/TSCH give an estimated cycle count (4 cycles per C statement), not the C674x's real timing.
+@@ labsim: exit 0

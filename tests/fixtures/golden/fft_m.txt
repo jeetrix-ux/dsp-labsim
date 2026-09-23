@@ -1,0 +1,2 @@
+@@ labsim: does not build
+"main.c", line 2: fatal error #1965: cannot open source file "math.io"
