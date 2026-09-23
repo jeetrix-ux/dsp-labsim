@@ -1914,7 +1914,7 @@ table.grid td { padding: 2px 6px; border-bottom: 1px solid #f0f0f0; }
 - [ ] **Step 6: Run the tests to make sure they pass**
 
 Run: `npm run test:e2e`
-Expected: `6 passed`. Then `npm run typecheck`, which should exit 0, and `npm test`, which should show 25 passed.
+Expected: `6 passed`. Then `npm run typecheck`, which should exit 0, and `npm test`, which should show 26 passed.
 
 - [ ] **Step 7: Look at it**
 
