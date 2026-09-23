@@ -1,7 +1,8 @@
-import { dialog, ipcMain, type BrowserWindow } from 'electron'
+import { app, dialog, ipcMain, type BrowserWindow } from 'electron'
 import { promises as fs } from 'fs'
 import * as path from 'path'
 import type { FileDialogOptions } from '@shared/api'
+import type { NewProjectOptions } from '@shared/newProject'
 import type { BuildKind, BuildOutputLine, Toolchain } from '@shared/build'
 import type { DebugCommand } from '@shared/debug'
 import type { ProgramImage } from '@shared/program'
@@ -9,6 +10,7 @@ import { runBuild } from './build/builder'
 import { debugLaunch } from './debug/launch'
 import { ChosenFiles } from './chosenFiles'
 import { DebugSession } from './debug/session'
+import { createProject, findLinkerCmd } from './newProject'
 import { toolchainAt } from './build/toolchain'
 import { assertInside, listProjects, readTextFile, readTree, writeTextFile } from './workspace'
 
@@ -40,6 +42,13 @@ export function registerIpc(ctx: IpcContext): void {
   ipcMain.handle('ws:tree', (_e, dir: string) => readTree(assertInside(ctx.getWorkspace(), dir)))
   ipcMain.handle('fs:read', (_e, p: string) => readTextFile(ctx.getWorkspace(), p))
   ipcMain.handle('fs:write', (_e, p: string, content: string) => writeTextFile(ctx.getWorkspace(), p, content))
+
+  /** The C6748.cmd shipped in resources/ (extraResources when packaged). */
+  const bundledCmd = (): string =>
+    app.isPackaged ? path.join(process.resourcesPath, 'C6748.cmd') : path.join(app.getAppPath(), 'resources', 'C6748.cmd')
+  ipcMain.handle('project:create', async (_e, o: NewProjectOptions) =>
+    createProject(ctx.getWorkspace(), o, await findLinkerCmd(bundledCmd(), process.env.LABSIM_TI_ROOT))
+  )
 
   ipcMain.handle('build:toolchain', () => ctx.getToolchain())
   ipcMain.handle('build:chooseCompiler', async () => {

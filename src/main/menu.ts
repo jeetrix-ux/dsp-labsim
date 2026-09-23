@@ -7,6 +7,8 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
     {
       label: 'File',
       submenu: [
+        { label: 'New', submenu: [{ label: 'CCS Project...', click: send('file.newProject') }] },
+        { type: 'separator' },
         { label: 'Save', accelerator: 'CmdOrCtrl+S', click: send('file.save') },
         { label: 'Save All', accelerator: 'CmdOrCtrl+Shift+S', click: send('file.saveAll') },
         { type: 'separator' },

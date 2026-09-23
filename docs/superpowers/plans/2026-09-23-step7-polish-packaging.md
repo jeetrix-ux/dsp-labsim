@@ -459,7 +459,7 @@ In `src/main/ipc.ts`:
   const bundledCmd = (): string =>
     app.isPackaged ? path.join(process.resourcesPath, 'C6748.cmd') : path.join(app.getAppPath(), 'resources', 'C6748.cmd')
   ipcMain.handle('project:create', async (_e, o: NewProjectOptions) =>
-    createProject(ctx.getWorkspace(), o, await findLinkerCmd(bundledCmd(), process.env.LABSIM_TI_ROOT ?? 'C:\\ti'))
+    createProject(ctx.getWorkspace(), o, await findLinkerCmd(bundledCmd(), process.env.LABSIM_TI_ROOT))
   )
 ```
 

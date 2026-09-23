@@ -1,7 +1,9 @@
 import type { BuildKind, BuildOutputLine, BuildResult, Toolchain } from './build'
 import type { DebugCommand, DebugEvent } from './debug'
+import type { NewProjectOptions } from './newProject'
 
 export type { BuildKind, BuildOutputLine, BuildResult, Diagnostic, Toolchain } from './build'
+export type { NewProjectOptions } from './newProject'
 
 export interface ProjectInfo {
   name: string
@@ -24,6 +26,7 @@ export interface FileDialogOptions {
 }
 
 export type MenuCommand =
+  | 'file.newProject'
   | 'file.save'
   | 'file.saveAll'
   | 'file.refresh'
@@ -72,6 +75,8 @@ export interface LabsimApi {
   writeChosenFile(path: string, data: string, encoding: 'utf8' | 'base64'): Promise<void>
   /** An open dialog for a text file; resolves to its path and content, or null if cancelled. */
   openTextFile(opts: FileDialogOptions): Promise<{ path: string; content: string } | null>
+  /** Creates a project in the workspace (File > New > CCS Project); resolves to its folder. */
+  createProject(opts: NewProjectOptions): Promise<string>
 }
 
 declare global {

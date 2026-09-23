@@ -9,6 +9,7 @@ const api: LabsimApi = {
   readTree: (projectDir) => ipcRenderer.invoke('ws:tree', projectDir),
   readFile: (path) => ipcRenderer.invoke('fs:read', path),
   writeFile: (path, content) => ipcRenderer.invoke('fs:write', path, content),
+  createProject: (opts) => ipcRenderer.invoke('project:create', opts),
   onMenu(cb) {
     const handler = (_e: IpcRendererEvent, cmd: MenuCommand): void => cb(cmd)
     ipcRenderer.on('menu', handler)
