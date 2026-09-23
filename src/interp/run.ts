@@ -6,7 +6,7 @@ import { ExitSignal, LoadError, Machine, type Callable, type HostFiles, type Run
 import { Trap } from './exec/memory'
 import { Placement } from './exec/placement'
 import { FunctionCode } from './exec/stmt'
-import { LIBRARY, UNSUPPORTED } from './runtime/index'
+import { initRuntime, LIBRARY, UNSUPPORTED } from './runtime/index'
 
 export { LoadError, Machine } from './exec/machine'
 export type { HostFiles, RunIO } from './exec/machine'
@@ -67,6 +67,7 @@ export function loadProgram(program: Program, image: ProgramImage, io: RunIO, op
   }
 
   placement.initialize()
+  initRuntime(m)
   for (const c of compiled) c.compile()
   return m
 }

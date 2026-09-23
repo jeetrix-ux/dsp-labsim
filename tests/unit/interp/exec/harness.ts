@@ -2,7 +2,7 @@ import { readFileSync } from 'fs'
 import * as path from 'path'
 import { expect } from 'vitest'
 import type { ProgramImage } from '@shared/program'
-import type { Machine, RunIO } from '../../../../src/interp/exec/machine'
+import type { HostFiles, Machine, RunIO } from '../../../../src/interp/exec/machine'
 import { captureIO, loadProgram, runProgram, type RunResult } from '../../../../src/interp/run'
 import { compileUnit, linkProgram, type Program } from '../../../../src/interp/frontend/program'
 import { layoutProgram } from '../../../../src/main/build/fallbackImage'
@@ -50,9 +50,9 @@ export interface Ran {
 }
 
 /** Builds and runs a program; `input` lines feed stdin. */
-export function runC(source: string, opts: BuildOptions & { others?: Record<string, string>; input?: string[]; maxSteps?: number } = {}): Ran {
+export function runC(source: string, opts: BuildOptions & { others?: Record<string, string>; input?: string[]; maxSteps?: number; files?: HostFiles } = {}): Ran {
   const { program, image } = build(source, opts.others ?? {}, opts)
-  const cap = captureIO(opts.input ?? [])
+  const cap = captureIO(opts.input ?? [], opts.files ?? null)
   const m = loadProgram(program, image, cap.io, { maxSteps: opts.maxSteps ?? 50_000_000 })
   const result = runProgram(m)
   return { result, stdout: cap.stdout(), stderr: cap.stderr(), notes: cap.notes, m, image, g: (name) => image.globals[name].addr }
