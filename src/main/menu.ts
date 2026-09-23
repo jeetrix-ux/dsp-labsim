@@ -43,7 +43,7 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
         { label: 'Run to Line', accelerator: 'Ctrl+R', registerAccelerator: false, click: send('run.toLine') }
       ]
     },
-    { label: 'Tools', submenu: [{ label: 'Graph', submenu: [{ label: 'Single Time', enabled: false }] }] },
+    { label: 'Tools', submenu: [{ label: 'Graph', submenu: [{ label: 'Single Time', click: send('tools.graphSingleTime') }] }] },
     {
       label: 'Window',
       submenu: [

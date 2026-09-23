@@ -16,6 +16,13 @@ export interface FileNode {
   children?: FileNode[]
 }
 
+export interface FileDialogOptions {
+  title: string
+  /** File name (or path) the dialog starts with. */
+  defaultName?: string
+  filters: { name: string; extensions: string[] }[]
+}
+
 export type MenuCommand =
   | 'file.save'
   | 'file.saveAll'
@@ -27,6 +34,7 @@ export type MenuCommand =
   | 'window.editPerspective'
   | 'window.debugPerspective'
   | 'window.compilerLocation'
+  | 'tools.graphSingleTime'
   | 'run.debug'
   | 'run.resume'
   | 'run.suspend'
@@ -58,6 +66,12 @@ export interface LabsimApi {
   debugRequest(cmd: DebugCommand): Promise<unknown>
   debugTerminate(): Promise<void>
   onDebugEvent(cb: (event: DebugEvent) => void): () => void
+  /** A save dialog; resolves to the chosen path (writable with writeChosenFile) or null if cancelled. */
+  chooseSaveFile(opts: FileDialogOptions): Promise<string | null>
+  /** Writes a file the user picked with chooseSaveFile. */
+  writeChosenFile(path: string, data: string, encoding: 'utf8' | 'base64'): Promise<void>
+  /** An open dialog for a text file; resolves to its path and content, or null if cancelled. */
+  openTextFile(opts: FileDialogOptions): Promise<{ path: string; content: string } | null>
 }
 
 declare global {

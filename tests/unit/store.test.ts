@@ -25,6 +25,9 @@ function fakeApi(): FakeApi {
     { name: 'main.c', path: MAIN, kind: 'file' }
   ]
   const api: FakeApi = {
+    chooseSaveFile: async () => null,
+    writeChosenFile: async () => {},
+    openTextFile: async () => null,
     buildCalls: [],
     nextBuild: { ok: true, diagnostics: [], image: null },
     toolchain: { root: 'C:\\ti\\cgt', version: '8.3.12', cl6x: 'C:\\ti\\cgt\\bin\\cl6x.exe' },

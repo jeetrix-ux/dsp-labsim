@@ -29,7 +29,10 @@ const api: LabsimApi = {
     const handler = (_e: IpcRendererEvent, event: DebugEvent): void => cb(event)
     ipcRenderer.on('debug:event', handler)
     return () => ipcRenderer.removeListener('debug:event', handler)
-  }
+  },
+  chooseSaveFile: (opts) => ipcRenderer.invoke('file:chooseSave', opts),
+  writeChosenFile: (path, data, encoding) => ipcRenderer.invoke('file:writeChosen', path, data, encoding),
+  openTextFile: (opts) => ipcRenderer.invoke('file:openText', opts)
 }
 
 contextBridge.exposeInMainWorld('labsim', api)
