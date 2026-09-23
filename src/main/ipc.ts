@@ -20,6 +20,10 @@ export interface IpcContext {
   getWindow(): BrowserWindow | null
   getToolchain(): Toolchain | null
   setCompilerRoot(root: string): Promise<Toolchain | null>
+  /** True when a compiler folder was chosen (settings or LABSIM_COMPILER_ROOT) rather than auto-detected. */
+  compilerChosen(): Promise<boolean>
+  /** Forgets the chosen folder and auto-detects again. */
+  resetCompilerRoot(): Promise<Toolchain | null>
   /** Latest successful link per project dir; the debugger (Step 5) loads from here. */
   images: Map<string, ProgramImage>
 }
@@ -57,6 +61,8 @@ export function registerIpc(ctx: IpcContext): void {
     if (!(await toolchainAt(dir))) throw new Error(`${dir} does not contain bin\\cl6x.exe`)
     return ctx.setCompilerRoot(dir)
   })
+  ipcMain.handle('build:compilerInfo', async () => ({ toolchain: ctx.getToolchain(), chosen: await ctx.compilerChosen() }))
+  ipcMain.handle('build:autoCompiler', () => ctx.resetCompilerRoot())
 
   let building = false
   ipcMain.handle('build:run', async (_e, projectDir: string, kind: BuildKind) => {

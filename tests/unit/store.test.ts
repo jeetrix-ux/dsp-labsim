@@ -17,6 +17,7 @@ type FakeApi = LabsimApi & {
   nextBuild: BuildResult
   toolchain: Toolchain | null
   created: NewProjectOptions[]
+  autoCalls: number
 }
 
 function fakeApi(): FakeApi {
@@ -44,6 +45,13 @@ function fakeApi(): FakeApi {
     toolchain: { root: 'C:\\ti\\cgt', version: '8.3.12', cl6x: 'C:\\ti\\cgt\\bin\\cl6x.exe' },
     getToolchain: async () => api.toolchain,
     chooseCompiler: async () => api.toolchain,
+    autoCalls: 0,
+    compilerInfo: async () => ({ toolchain: api.toolchain, chosen: api.toolchain !== null }),
+    autoDetectCompiler: async () => {
+      api.autoCalls++
+      api.toolchain = null
+      return null
+    },
     build: async (dir: string, kind: BuildKind) => {
       api.buildCalls.push([dir, kind])
       return api.nextBuild
@@ -262,5 +270,21 @@ describe('new project', () => {
     expect(store.getState().dialog).toBe('newProject')
     store.getState().closeDialog()
     expect(store.getState().dialog).toBeNull()
+  })
+})
+
+describe('preferences', () => {
+  it('loads the compiler in use and switches to auto-detect', async () => {
+    await store.getState().loadCompiler()
+    expect(store.getState().compiler).toEqual({ toolchain: api.toolchain, chosen: true })
+    await store.getState().autoDetectCompiler()
+    expect(api.autoCalls).toBe(1)
+    expect(store.getState().compiler).toEqual({ toolchain: null, chosen: false })
+    expect(store.getState().consoles[MAIN_CONSOLE].at(-1)?.text).toBe('C6000 compiler: not found by auto-detect; builds will use the LabSim front-end.')
+  })
+
+  it('refreshes the compiler after Browse', async () => {
+    await store.getState().chooseCompiler()
+    expect(store.getState().compiler?.toolchain?.version).toBe('8.3.12')
   })
 })

@@ -83,7 +83,7 @@ export interface FallbackRequest {
 /** Builds with LabSim's own front-end and a synthetic linker when cl6x is not installed. */
 export async function runFallbackBuild({ projectDir, outDir, name, emit }: FallbackRequest): Promise<BuildResult> {
   emit('LabSim: the C6000 compiler (cl6x) was not found, so this build uses the LabSim C front-end.', 'info')
-  emit("Its diagnostics follow cl6x 8.3. Set Window > Preferences > C6000 Compiler Location to build with TI's compiler.", 'info')
+  emit("Its diagnostics follow cl6x 8.3. Choose TI's compiler in Window > Preferences to build with it.", 'info')
   emit('', 'out')
   const cfg = await readBuildConfig(projectDir, FALLBACK_CGT)
   for (const n of cfg.notes ?? []) emit(`LabSim: ${n}`, 'error')

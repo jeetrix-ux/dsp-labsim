@@ -1,5 +1,5 @@
 import { createStore } from 'zustand/vanilla'
-import type { BuildKind, BuildOutputLine, BuildResult, Diagnostic, FileNode, LabsimApi, NewProjectOptions, ProjectInfo } from '@shared/api'
+import type { BuildKind, BuildOutputLine, BuildResult, Diagnostic, CompilerInfo, FileNode, LabsimApi, NewProjectOptions, ProjectInfo } from '@shared/api'
 import { basename, isTextFile } from '@shared/files'
 
 export type Perspective = 'edit' | 'debug'
@@ -74,6 +74,9 @@ export interface AppState {
   setBottomTab(tab: BottomTab): void
   build(kind: BuildKind): Promise<BuildResult | null>
   chooseCompiler(): Promise<void>
+  compiler: CompilerInfo | null
+  loadCompiler(): Promise<void>
+  autoDetectCompiler(): Promise<void>
   dialog: DialogKind | null
   openDialog(d: DialogKind): void
   closeDialog(): void
@@ -97,6 +100,7 @@ export function createAppStore(api: LabsimApi) {
     activeConsole: MAIN_CONSOLE,
     bottomTab: 'console',
     dialog: null,
+    compiler: null,
     building: false,
     diagnostics: [],
     reveal: null,
@@ -109,7 +113,7 @@ export function createAppStore(api: LabsimApi) {
       get().print(MAIN_CONSOLE, `Workspace: ${workspace} (${n} project${n === 1 ? '' : 's'})`, 'info')
       const tc = await api.getToolchain()
       if (tc) get().print(MAIN_CONSOLE, `C6000 compiler: ${tc.root} (v${tc.version})`, 'info')
-      else get().print(MAIN_CONSOLE, "C6000 compiler (cl6x) not found. Builds will use the LabSim front-end; set Window > Preferences > C6000 Compiler Location to use TI's compiler.", 'error')
+      else get().print(MAIN_CONSOLE, "C6000 compiler (cl6x) not found. Builds will use the LabSim front-end; choose TI's compiler in Window > Preferences.", 'error')
     },
 
     async refresh() {
@@ -251,8 +255,20 @@ export function createAppStore(api: LabsimApi) {
         const tc = await api.chooseCompiler()
         if (tc) get().print(MAIN_CONSOLE, `C6000 compiler: ${tc.root} (v${tc.version})`, 'info')
       } catch (e) {
-        get().print(MAIN_CONSOLE, String(e), 'error')
+        get().print(MAIN_CONSOLE, ipcError(e), 'error')
       }
+      await get().loadCompiler()
+    },
+
+    async loadCompiler() {
+      set({ compiler: await api.compilerInfo() })
+    },
+
+    async autoDetectCompiler() {
+      const tc = await api.autoDetectCompiler()
+      if (tc) get().print(MAIN_CONSOLE, `C6000 compiler: ${tc.root} (v${tc.version}), auto-detected`, 'info')
+      else get().print(MAIN_CONSOLE, 'C6000 compiler: not found by auto-detect; builds will use the LabSim front-end.', 'info')
+      await get().loadCompiler()
     },
 
     openDialog(dialog) {

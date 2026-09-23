@@ -9,6 +9,7 @@ import { EditorArea, getCursorLine } from './components/EditorArea'
 import { GraphPanel } from './components/GraphPanel'
 import { GraphPropertiesDialog } from './components/GraphPropertiesDialog'
 import { NewProjectDialog } from './components/NewProjectDialog'
+import { PreferencesDialog } from './components/PreferencesDialog'
 import { ProjectExplorer } from './components/ProjectExplorer'
 import { Splitter } from './components/Splitter'
 import { Toolbar } from './components/Toolbar'
@@ -64,7 +65,7 @@ function handleMenu(cmd: MenuCommand): void {
     case 'project.build': void s.build('build'); break
     case 'project.rebuild': void s.build('rebuild'); break
     case 'project.clean': void s.build('clean'); break
-    case 'window.compilerLocation': void s.chooseCompiler(); break
+    case 'window.preferences': s.openDialog('preferences'); break
     case 'window.editPerspective': s.setPerspective('edit'); break
     case 'window.debugPerspective': s.setPerspective('debug'); break
   }
@@ -148,6 +149,7 @@ export function App(): JSX.Element {
       </div>
       <GraphPropertiesDialog />
       <NewProjectDialog />
+      <PreferencesDialog />
     </div>
   )
 }

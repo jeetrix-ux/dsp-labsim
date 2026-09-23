@@ -25,6 +25,12 @@ export interface FileDialogOptions {
   filters: { name: string; extensions: string[] }[]
 }
 
+export interface CompilerInfo {
+  toolchain: Toolchain | null
+  /** The folder was chosen in Preferences (or by LABSIM_COMPILER_ROOT), not auto-detected. */
+  chosen: boolean
+}
+
 export type MenuCommand =
   | 'file.newProject'
   | 'file.save'
@@ -36,7 +42,7 @@ export type MenuCommand =
   | 'project.clean'
   | 'window.editPerspective'
   | 'window.debugPerspective'
-  | 'window.compilerLocation'
+  | 'window.preferences'
   | 'tools.graphSingleTime'
   | 'run.debug'
   | 'run.resume'
@@ -62,6 +68,9 @@ export interface LabsimApi {
   getToolchain(): Promise<Toolchain | null>
   /** Folder picker for the C6000 CGT root; resolves to the toolchain now in use (null if none). */
   chooseCompiler(): Promise<Toolchain | null>
+  compilerInfo(): Promise<CompilerInfo>
+  /** Forgets the chosen compiler folder and auto-detects again; resolves to the toolchain now in use. */
+  autoDetectCompiler(): Promise<Toolchain | null>
   build(projectDir: string, kind: BuildKind): Promise<BuildResult>
   onBuildOutput(cb: (line: BuildOutputLine) => void): () => void
   /** Starts debugging the project's last successful build (stopping any running session first). */

@@ -56,7 +56,7 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
             { label: 'CCS Debug', click: send('window.debugPerspective') }
           ]
         },
-        { label: 'Preferences', submenu: [{ label: 'C6000 Compiler Location...', click: send('window.compilerLocation') }] },
+        { label: 'Preferences...', click: send('window.preferences') },
         { type: 'separator' },
         { role: 'toggleDevTools' },
         { role: 'reload', accelerator: 'CmdOrCtrl+Shift+R' }

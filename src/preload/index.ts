@@ -17,6 +17,8 @@ const api: LabsimApi = {
   },
   getToolchain: () => ipcRenderer.invoke('build:toolchain'),
   chooseCompiler: () => ipcRenderer.invoke('build:chooseCompiler'),
+  compilerInfo: () => ipcRenderer.invoke('build:compilerInfo'),
+  autoDetectCompiler: () => ipcRenderer.invoke('build:autoCompiler'),
   build: (projectDir, kind) => ipcRenderer.invoke('build:run', projectDir, kind),
   onBuildOutput(cb) {
     const handler = (_e: IpcRendererEvent, line: BuildOutputLine): void => cb(line)
