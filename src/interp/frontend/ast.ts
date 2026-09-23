@@ -161,4 +161,6 @@ export interface TranslationUnit {
   /** Every function declared in the unit, implicitly or not. */
   funcs: FuncSym[]
   pragmas: Pragma[]
+  /** The parser's file scope (typedefs, struct tags, file-level names), for expressions typed in the debugger. */
+  scope: object
 }

@@ -2,7 +2,7 @@ import type { BinOp, Block, CaseStmt, CompoundOp, DefaultStmt, Expr, FuncSym, Fu
 import { evalConst, evalIntConst } from './consteval'
 import { M, type Diags, type Loc, type Msg, type Punct } from './diag'
 import { lowerInit, type Designator, type InitSyntax, type InitSyntaxItem } from './initializer'
-import { loc as tokLoc, type Token } from './lexer'
+import { loc as tokLoc, tokenize, type Token } from './lexer'
 import { parseNumber, type NumberLiteral } from './literals'
 import { isBuiltinFile, type Pragma } from './preprocessor'
 import { MEM_INTRINSICS, Sema } from './sema'
@@ -135,6 +135,14 @@ export function parseUnit(tokens: Token[], opts: ParseOptions, diags: Diags): Tr
   return new Parser(tokens, opts, diags).unit()
 }
 
+/**
+ * Parses one C expression typed in the debugger (Expressions view, graph start address) in the file scope of `unit`,
+ * with a function's `locals` visible. Macros are not expanded, as in CCS. Returns null after a syntax error.
+ */
+export function parseExpression(text: string, unit: TranslationUnit, locals: VarSym[], diags: Diags): Expr | null {
+  return new Parser(tokenize(text, '<expression>'), { file: unit.file, dialect: 'c99' }, diags).standalone(unit.scope as Scope, locals)
+}
+
 class Parser {
   private pos = 0
   private readonly sema: Sema
@@ -179,7 +187,32 @@ class Parser {
       if (v.type.kind === 'array' && v.type.length === null && !v.type.vla && v.defined) v.type = { ...v.type, length: 1 }
     }
     this.usageWarnings(this.objects.filter((v) => v.storage === 'static' && v.linkName === v.name))
-    return { file: this.opts.file, functions: this.functions, objects: this.objects, funcs: this.funcs, pragmas: this.opts.pragmas ?? [] }
+    return {
+      file: this.opts.file,
+      functions: this.functions,
+      objects: this.objects,
+      funcs: this.funcs,
+      pragmas: this.opts.pragmas ?? [],
+      scope: this.file
+    }
+  }
+
+  /** One expression in `file` with `locals` in an inner scope; the whole input must be the expression. */
+  standalone(file: Scope, locals: VarSym[]): Expr | null {
+    const scope = new Scope(file)
+    for (const v of locals) scope.syms.set(v.name, v)
+    this.scope = scope
+    try {
+      const e = this.expression()
+      if (this.tok.kind !== 'eof') {
+        this.diags.error(this.at(), M.expectedExpression())
+        return null
+      }
+      return e
+    } catch (err) {
+      if (err === ABORT) return null
+      throw err
+    }
   }
 
   // ------------------------------------------------------------ tokens
