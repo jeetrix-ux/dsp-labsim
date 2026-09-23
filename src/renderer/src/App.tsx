@@ -1,11 +1,13 @@
 import { useEffect, type JSX } from 'react'
 import type { MenuCommand } from '@shared/api'
 import { basename } from '@shared/files'
-import { appStore, debugStore, useApp } from './appStore'
+import { appStore, debugStore, graphStore, useApp, useGraphs } from './appStore'
 import { isDirty } from './store'
 import { BottomPanel } from './components/BottomPanel'
 import { DebugView, VariablesPanel } from './components/DebugViews'
 import { EditorArea, getCursorLine } from './components/EditorArea'
+import { GraphPanel } from './components/GraphPanel'
+import { GraphPropertiesDialog } from './components/GraphPropertiesDialog'
 import { ProjectExplorer } from './components/ProjectExplorer'
 import { Splitter } from './components/Splitter'
 import { Toolbar } from './components/Toolbar'
@@ -52,6 +54,7 @@ function handleMenu(cmd: MenuCommand): void {
     case 'run.stepOver': void d.stepOver(); break
     case 'run.stepReturn': void d.stepReturn(); break
     case 'run.toLine': runToCursor(); break
+    case 'tools.graphSingleTime': graphStore.getState().openNew(); break
     case 'file.save': void s.saveTab(); break
     case 'file.saveAll': void s.saveAll(); break
     case 'file.refresh': void s.refresh(); break
@@ -74,6 +77,7 @@ export function App(): JSX.Element {
   const workspace = useApp((s) => s.workspace)
   const active = useApp((s) => s.activeTab)
   const dirtyCount = useApp((s) => s.tabs.filter(isDirty).length)
+  const graphCount = useGraphs((s) => s.graphs.length)
 
   useEffect(() => {
     void appStore.getState().init()
@@ -106,9 +110,18 @@ export function App(): JSX.Element {
     return () => window.removeEventListener('beforeunload', onBeforeUnload)
   }, [dirtyCount])
 
+  const editor =
+    perspective === 'debug' && graphCount > 0 ? (
+      <Splitter key="with-graphs" direction="row" size={560} fixed="second">
+        {[<EditorArea key="editor" />, <GraphPanel key="graphs" />]}
+      </Splitter>
+    ) : (
+      <EditorArea key="editor" />
+    )
+
   const editorAndConsole = (
     <Splitter direction="column" size={220} fixed="second">
-      {[<EditorArea key="editor" />, <BottomPanel key="bottom" />]}
+      {[editor, <BottomPanel key="bottom" />]}
     </Splitter>
   )
 
@@ -131,6 +144,7 @@ export function App(): JSX.Element {
           </Splitter>
         )}
       </div>
+      <GraphPropertiesDialog />
     </div>
   )
 }
