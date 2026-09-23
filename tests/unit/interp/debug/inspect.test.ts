@@ -102,4 +102,23 @@ describe('Inspector', () => {
     expect(ins.frames()).toEqual([])
     expect(ins.evaluate(0, 'total').value).toBe('2')
   })
+
+  it('resolves graph start addresses', () => {
+    pauseAt(8, (ins) => {
+      const at = (expr: string): number => Number(ins.evaluate(1, expr).address)
+      const a = (expr: string) => ins.address(1, expr)
+      expect(a('pts')).toEqual({ address: at('pts') })
+      expect(a('&pts[1]')).toEqual({ address: at('pts[1]') })
+      expect(a('name + 2')).toEqual({ address: at('name[2]') })
+      expect(a('p')).toEqual({ address: at('acc') })
+      expect(a('total')).toEqual({ address: at('total') })
+      expect(a('pts[1].y')).toEqual({ address: at('pts[1].y') })
+      expect(a('0x80009498')).toEqual({ address: 0x80009498 })
+      expect(ins.address(0, 'twice')).toEqual({ address: Number(ins.evaluate(0, 'twice').address) })
+      expect(a('twice')).toMatchObject({ error: expect.stringMatching(/twice/) })
+      expect(a('  ')).toEqual({ error: 'the Start Address is empty' })
+      expect(a('scale')).toEqual({ error: "'scale' is a function" })
+      expect(a('scale(1, 2)')).toEqual({ error: 'LabSim does not call functions from the Expressions view' })
+    })
+  })
 })

@@ -142,4 +142,14 @@ describe('Debugger', () => {
     expect(ch.reply(1)).toEqual([0, 0, 0, 0, 0, 0, 0, 0])
     expect(ch.reply(2)).toBeNull()
   })
+
+  it('resolves start addresses for the graphs', () => {
+    let y = 0
+    const { ch } = session(PROGRAM, (image) => {
+      y = image.globals.y.addr
+      return [{ cmd: 'address', frame: 0, expr: 'y' }, { cmd: 'address', frame: 0, expr: 'nosuch' }, { cmd: 'terminate' }]
+    })
+    expect(ch.reply(1)).toEqual({ address: y })
+    expect(ch.reply(2)).toMatchObject({ error: expect.stringMatching(/nosuch/) })
+  })
 })

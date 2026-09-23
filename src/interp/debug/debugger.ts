@@ -234,6 +234,9 @@ export class Debugger {
           this.reply(req.id, bytes ? [...bytes] : null)
           return
         }
+        case 'address':
+          this.reply(req.id, this.ins.address(req.frame, req.expr))
+          return
         case 'input':
           this.reply(req.id, undefined, 'The program is not waiting for input.')
           return
