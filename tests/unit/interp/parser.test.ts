@@ -170,6 +170,11 @@ describe('parseUnit', () => {
     expect(parse('int f(void){ return (1 + 2; }\nint g(void){ return h; }').codes).toEqual(['1:18', '2:20'])
   })
 
+  it('skips a brace list assigned in a statement after one #29, as cl6x does (idft_8_m)', () => {
+    const src = 'float xr[8];\nint main(void)\n{\n    int n;\n    for (n = 0; n < 8; n++) {\n        xr[8] = {0, 0, 0};\n        xr[n] = 1;\n    }\n    return 0;\n}'
+    expect(parse(src).codes).toEqual(['6:29'])
+  })
+
   it('reads C6000 control registers and memory intrinsics', () => {
     const { codes, global } = parse('#include <c6x.h>\nint main(void){ unsigned t = TSCL; int a[2]; CSR = CSR | 1; _amem4(&a[0]) = 5; return _dotp2(t, 1) + _extu(CSR, 22, 31) + a[0]; }')
     expect(codes).toEqual([])

@@ -1157,6 +1157,8 @@ class Parser {
         if (!KEYWORDS.has(t.text)) return this.identifier(t)
         break
     }
+    // A '{' where an expression belongs (`a[8] = {0, 0};`) ends the statement: cl6x skips the braces unreported.
+    if (t.kind === 'punct' && t.text === '{') this.abort(M.expectedExpression(), t)
     this.diags.error(at, M.expectedExpression())
     if (t.kind !== 'eof' && !(t.kind === 'punct' && CLOSERS.has(t.text))) this.next()
     return { k: 'error', loc: at, type: T.error }
