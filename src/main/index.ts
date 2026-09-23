@@ -62,6 +62,14 @@ void app.whenReady().then(async () => {
       await saveSettings(settingsFile(), { ...(await loadSettings(settingsFile())), compilerRoot: root })
       return toolchain
     },
+    compilerChosen: async () => process.env.LABSIM_COMPILER_ROOT !== undefined || !!(await loadSettings(settingsFile())).compilerRoot,
+    resetCompilerRoot: async () => {
+      const s = await loadSettings(settingsFile())
+      delete s.compilerRoot
+      await saveSettings(settingsFile(), s)
+      toolchain = await findToolchain(process.env.LABSIM_COMPILER_ROOT)
+      return toolchain
+    },
     images
   })
   buildMenu(() => mainWindow)

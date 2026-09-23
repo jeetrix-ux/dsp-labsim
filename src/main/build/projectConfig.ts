@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs'
 import * as path from 'path'
+import { SIZE, SYMBOL } from '@shared/newProject'
 
 export interface BuildConfig {
   projectName: string
@@ -19,6 +20,8 @@ export interface BuildConfig {
   linkerCommandFile: string | null
   /** C89 (cl6x's default, relaxed) or C99 (--c99), from the project's C_DIALECT option. */
   dialect: 'c89' | 'c99'
+  /** Problems found in labsim.json; the builds print them. */
+  notes?: string[]
 }
 
 const fwd = (p: string): string => p.replace(/\\/g, '/')
@@ -111,6 +114,37 @@ export function parseCproject(xml: string, name: string, dir: string, cgtRoot: s
   return cfg
 }
 
+export const LABSIM_JSON = 'labsim.json'
+
+/** Applies a project's labsim.json over `cfg`; returns why any field was ignored. */
+export function applyLabsimJson(cfg: BuildConfig, text: string): string[] {
+  let raw: unknown
+  try {
+    raw = JSON.parse(text)
+  } catch (e) {
+    return [`labsim.json is not valid JSON (${e instanceof Error ? e.message : String(e)}); its options were ignored.`]
+  }
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return ['labsim.json must hold a JSON object; its options were ignored.']
+  const o = raw as Record<string, unknown>
+  const problems: string[] = []
+  for (const key of ['heapSize', 'stackSize'] as const) {
+    const v = o[key]
+    if (v === undefined) continue
+    if (typeof v === 'string' && SIZE.test(v.trim())) cfg[key] = v.trim()
+    else problems.push(`labsim.json: ${key} must be a size such as "0x800"; ignored.`)
+  }
+  if (o.optLevel !== undefined) {
+    if (o.optLevel === 'off' || o.optLevel === null) cfg.optLevel = null
+    else if (typeof o.optLevel === 'string' && /^[0-3]$/.test(o.optLevel)) cfg.optLevel = o.optLevel
+    else problems.push('labsim.json: optLevel must be "off", "0", "1", "2" or "3"; ignored.')
+  }
+  if (o.defines !== undefined) {
+    if (Array.isArray(o.defines) && o.defines.every((d) => typeof d === 'string' && SYMBOL.test(d))) cfg.defines = o.defines as string[]
+    else problems.push('labsim.json: defines must be a list of symbols such as ["c6748"]; ignored.')
+  }
+  return problems
+}
+
 export async function readBuildConfig(projectDir: string, cgtRoot: string): Promise<BuildConfig> {
   const name = path.basename(projectDir)
   let cfg: BuildConfig
@@ -122,6 +156,10 @@ export async function readBuildConfig(projectDir: string, cgtRoot: string): Prom
   const files = await fs.readdir(projectDir)
   if (!cfg.linkerCommandFile || !files.includes(cfg.linkerCommandFile)) {
     cfg.linkerCommandFile = files.find((f) => f.toLowerCase().endsWith('.cmd')) ?? null
+  }
+  if (files.includes(LABSIM_JSON)) {
+    const notes = applyLabsimJson(cfg, await fs.readFile(path.join(projectDir, LABSIM_JSON), 'utf8'))
+    if (notes.length > 0) cfg.notes = notes
   }
   return cfg
 }

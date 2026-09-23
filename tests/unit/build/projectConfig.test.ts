@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'fs'
+import { mkdtempSync, readFileSync, writeFileSync } from 'fs'
+import { tmpdir } from 'os'
 import { join } from 'path'
-import { defaultConfig, parseCproject } from '../../../src/main/build/projectConfig'
+import { applyLabsimJson, defaultConfig, parseCproject, readBuildConfig } from '../../../src/main/build/projectConfig'
 
 const CGT = 'C:\\ti\\ccs1281\\ccs\\tools\\compiler\\ti-cgt-c6000_8.3.12'
 const DIR = 'C:\\ws\\exp11'
@@ -64,5 +65,40 @@ describe('defaultConfig', () => {
     expect(cfg.includePaths).toEqual(['C:/ws/exp11', 'C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-c6000_8.3.12/include'])
     expect([cfg.heapSize, cfg.stackSize]).toEqual(['0x800', '0x800'])
     expect(cfg.linkerCommandFile).toBeNull()
+  })
+})
+
+describe('labsim.json', () => {
+  it('overrides heap, stack, optimisation and defines', () => {
+    const cfg = defaultConfig('p', DIR, CGT)
+    expect(applyLabsimJson(cfg, '{ "heapSize": "0x2000", "stackSize": "4096", "optLevel": "2", "defines": ["c6748", "N=64"] }')).toEqual([])
+    expect([cfg.heapSize, cfg.stackSize, cfg.optLevel, cfg.defines]).toEqual(['0x2000', '4096', '2', ['c6748', 'N=64']])
+    expect(applyLabsimJson(cfg, '{ "optLevel": "off" }')).toEqual([])
+    expect(cfg.optLevel).toBeNull()
+  })
+
+  it('ignores bad fields and says why', () => {
+    const cfg = defaultConfig('p', DIR, CGT)
+    expect(applyLabsimJson(cfg, '{ "heapSize": "big", "optLevel": 5, "defines": "c6748", "stackSize": "0x400" }')).toEqual([
+      'labsim.json: heapSize must be a size such as "0x800"; ignored.',
+      'labsim.json: optLevel must be "off", "0", "1", "2" or "3"; ignored.',
+      'labsim.json: defines must be a list of symbols such as ["c6748"]; ignored.'
+    ])
+    expect([cfg.heapSize, cfg.stackSize, cfg.optLevel, cfg.defines]).toEqual(['0x800', '0x400', null, ['c6748']])
+    expect(applyLabsimJson(cfg, '[1]')).toEqual(['labsim.json must hold a JSON object; its options were ignored.'])
+    expect(applyLabsimJson(cfg, '{ oops')[0]).toMatch(/^labsim\.json is not valid JSON \(.+\); its options were ignored\.$/)
+  })
+
+  it('is read by readBuildConfig, after .cproject', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'labsim-cfg-'))
+    writeFileSync(join(dir, 'main.c'), 'int main(void) { return 0; }\n')
+    writeFileSync(join(dir, 'C6748.cmd'), '')
+    writeFileSync(join(dir, 'labsim.json'), '{ "stackSize": "0x1000", "optLevel": "9" }')
+    const cfg = await readBuildConfig(dir, CGT)
+    expect(cfg.stackSize).toBe('0x1000')
+    expect(cfg.linkerCommandFile).toBe('C6748.cmd')
+    expect(cfg.notes).toEqual(['labsim.json: optLevel must be "off", "0", "1", "2" or "3"; ignored.'])
+    writeFileSync(join(dir, 'labsim.json'), '{}')
+    expect((await readBuildConfig(dir, CGT)).notes).toBeUndefined()
   })
 })

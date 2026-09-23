@@ -57,6 +57,12 @@ describe('runBuild without a compiler (LabSim fallback)', () => {
     expect(r.image?.globals.y.addr).toBeGreaterThanOrEqual(0x80000000)
     expect(r.image?.statics[join(dir, 'main.c')].n).toMatchObject({ section: '.bss', size: 4 })
   })
+  it('prints labsim.json problems in the Build Console', async () => {
+    const dir = project('p', GOOD, { 'labsim.json': '{ "heapSize": "lots" }' })
+    const r = await runBuild({ projectDir: dir, kind: 'build', toolchain: null, onOutput })
+    expect(r.ok).toBe(true)
+    expect(log).toContainEqual({ text: 'LabSim: labsim.json: heapSize must be a size such as "0x800"; ignored.', kind: 'error' })
+  })
   it('reports compile errors in cl6x form', async () => {
     const dir = project('bad', BAD)
     const r = await runBuild({ projectDir: dir, kind: 'build', toolchain: null, onOutput })

@@ -1,6 +1,7 @@
 import { useStore } from 'zustand'
 import { createDebugStore, type DebugState } from './debugStore'
 import { createGraphStore, type GraphState, type KeyValueStorage } from './graphStore'
+import { createMemoryStore, type MemoryState } from './memoryStore'
 import { createAppStore, type AppState } from './store'
 
 export const appStore = createAppStore(window.labsim)
@@ -16,6 +17,7 @@ function localStore(): KeyValueStorage | null {
 }
 
 export const graphStore = createGraphStore(window.labsim, appStore, debugStore, localStore())
+export const memoryStore = createMemoryStore(window.labsim, debugStore)
 
 /** Select a slice of app state. Return primitives or existing references only (zustand 5 re-renders on new objects). */
 export function useApp<T>(selector: (s: AppState) => T): T {
@@ -30,4 +32,9 @@ export function useDebug<T>(selector: (s: DebugState) => T): T {
 /** Select a slice of the graphs' state (same rule as useApp). */
 export function useGraphs<T>(selector: (s: GraphState) => T): T {
   return useStore(graphStore, selector)
+}
+
+/** Select a slice of the Memory Browser's state (same rule as useApp). */
+export function useMemory<T>(selector: (s: MemoryState) => T): T {
+  return useStore(memoryStore, selector)
 }

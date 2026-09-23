@@ -294,6 +294,35 @@ the Debug perspective.
 - **Per-project memory.** The last-used properties per project are kept in the app's local storage.
 - **Read limit.** One refresh reads at most 1 MiB.
 
+## Polish (Step 7)
+
+**New CCS Project.** File > New > CCS Project asks for:
+- the project name;
+- under Advanced settings, the heap size, the stack size, the optimization level (off, 0–3) and the predefined symbols (default `c6748`).
+
+It writes three files:
+- `main.c`, CCS's "Empty Project (with main.c)" template, with CRLF line ends;
+- `C6748.cmd`, copied from the newest `C:\ti\ccs*\ccs\ccs_base\c6000\include`, or from the copy shipped in `resources/`;
+- `labsim.json`, the build options.
+
+Names follow CCS rules: they start with a letter or `_`, use letters, digits, `_`, `-` and `.`, and differ from existing folders in more than case.
+
+**labsim.json.** It overrides `.cproject` inside `readBuildConfig`, so the cl6x build, the fallback build, the debugger and the CLI all agree. A bad field is ignored, with a `LabSim: labsim.json: …` line in the Build Console.
+
+**Preferences.** Window > Preferences shows:
+- the compiler in use, auto-detected or chosen, with Browse... and Use Auto-detect;
+- the workspace, with Switch Workspace....
+
+**Memory Browser.** It is a bottom-panel tab, opened from View > Memory Browser.
+- **Address.** Go evaluates the address or expression in the selected frame, with the same rules as a graph's Start Address, and aligns it down to the format's unit.
+- **Page.** It shows 32 rows of 16 bytes. Previous Page and Next Page move 512 bytes.
+- **Formats.** They use CCS's names: 32-bit hex (TI/C style), signed/unsigned int, float, 16-bit hex/int, 8-bit hex and character.
+- **Unreadable memory.** Such rows show `?`.
+- **Refresh.** The page refreshes on every halt.
+- **Editing.** Memory is read-only in this view; change values in the Expressions view.
+
+**Packaging.** `npm run dist` builds a portable `DSP-LabSim-<version>-portable.exe` with electron-builder, using the local Electron. `npm run dist:dir` builds the unpacked app, which the packaged-app smoke test launches.
+
 ## Error handling summary
 
 | Situation | Behaviour |

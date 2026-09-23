@@ -1,7 +1,9 @@
 import type { BuildKind, BuildOutputLine, BuildResult, Toolchain } from './build'
 import type { DebugCommand, DebugEvent } from './debug'
+import type { NewProjectOptions } from './newProject'
 
 export type { BuildKind, BuildOutputLine, BuildResult, Diagnostic, Toolchain } from './build'
+export type { NewProjectOptions } from './newProject'
 
 export interface ProjectInfo {
   name: string
@@ -23,7 +25,14 @@ export interface FileDialogOptions {
   filters: { name: string; extensions: string[] }[]
 }
 
+export interface CompilerInfo {
+  toolchain: Toolchain | null
+  /** The folder was chosen in Preferences (or by LABSIM_COMPILER_ROOT), not auto-detected. */
+  chosen: boolean
+}
+
 export type MenuCommand =
+  | 'file.newProject'
   | 'file.save'
   | 'file.saveAll'
   | 'file.refresh'
@@ -33,7 +42,8 @@ export type MenuCommand =
   | 'project.clean'
   | 'window.editPerspective'
   | 'window.debugPerspective'
-  | 'window.compilerLocation'
+  | 'window.preferences'
+  | 'view.memoryBrowser'
   | 'tools.graphSingleTime'
   | 'run.debug'
   | 'run.resume'
@@ -59,6 +69,9 @@ export interface LabsimApi {
   getToolchain(): Promise<Toolchain | null>
   /** Folder picker for the C6000 CGT root; resolves to the toolchain now in use (null if none). */
   chooseCompiler(): Promise<Toolchain | null>
+  compilerInfo(): Promise<CompilerInfo>
+  /** Forgets the chosen compiler folder and auto-detects again; resolves to the toolchain now in use. */
+  autoDetectCompiler(): Promise<Toolchain | null>
   build(projectDir: string, kind: BuildKind): Promise<BuildResult>
   onBuildOutput(cb: (line: BuildOutputLine) => void): () => void
   /** Starts debugging the project's last successful build (stopping any running session first). */
@@ -72,6 +85,8 @@ export interface LabsimApi {
   writeChosenFile(path: string, data: string, encoding: 'utf8' | 'base64'): Promise<void>
   /** An open dialog for a text file; resolves to its path and content, or null if cancelled. */
   openTextFile(opts: FileDialogOptions): Promise<{ path: string; content: string } | null>
+  /** Creates a project in the workspace (File > New > CCS Project); resolves to its folder. */
+  createProject(opts: NewProjectOptions): Promise<string>
 }
 
 declare global {

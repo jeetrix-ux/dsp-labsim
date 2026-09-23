@@ -1,7 +1,8 @@
-import { dialog, ipcMain, type BrowserWindow } from 'electron'
+import { app, dialog, ipcMain, type BrowserWindow } from 'electron'
 import { promises as fs } from 'fs'
 import * as path from 'path'
 import type { FileDialogOptions } from '@shared/api'
+import type { NewProjectOptions } from '@shared/newProject'
 import type { BuildKind, BuildOutputLine, Toolchain } from '@shared/build'
 import type { DebugCommand } from '@shared/debug'
 import type { ProgramImage } from '@shared/program'
@@ -9,6 +10,7 @@ import { runBuild } from './build/builder'
 import { debugLaunch } from './debug/launch'
 import { ChosenFiles } from './chosenFiles'
 import { DebugSession } from './debug/session'
+import { createProject, findLinkerCmd } from './newProject'
 import { toolchainAt } from './build/toolchain'
 import { assertInside, listProjects, readTextFile, readTree, writeTextFile } from './workspace'
 
@@ -18,6 +20,10 @@ export interface IpcContext {
   getWindow(): BrowserWindow | null
   getToolchain(): Toolchain | null
   setCompilerRoot(root: string): Promise<Toolchain | null>
+  /** True when a compiler folder was chosen (settings or LABSIM_COMPILER_ROOT) rather than auto-detected. */
+  compilerChosen(): Promise<boolean>
+  /** Forgets the chosen folder and auto-detects again. */
+  resetCompilerRoot(): Promise<Toolchain | null>
   /** Latest successful link per project dir; the debugger (Step 5) loads from here. */
   images: Map<string, ProgramImage>
 }
@@ -41,6 +47,13 @@ export function registerIpc(ctx: IpcContext): void {
   ipcMain.handle('fs:read', (_e, p: string) => readTextFile(ctx.getWorkspace(), p))
   ipcMain.handle('fs:write', (_e, p: string, content: string) => writeTextFile(ctx.getWorkspace(), p, content))
 
+  /** The C6748.cmd shipped in resources/ (extraResources when packaged). */
+  const bundledCmd = (): string =>
+    app.isPackaged ? path.join(process.resourcesPath, 'C6748.cmd') : path.join(app.getAppPath(), 'resources', 'C6748.cmd')
+  ipcMain.handle('project:create', async (_e, o: NewProjectOptions) =>
+    createProject(ctx.getWorkspace(), o, await findLinkerCmd(bundledCmd(), process.env.LABSIM_TI_ROOT))
+  )
+
   ipcMain.handle('build:toolchain', () => ctx.getToolchain())
   ipcMain.handle('build:chooseCompiler', async () => {
     const dir = await pickFolder('Select the C6000 compiler folder (ti-cgt-c6000_x.y.z)')
@@ -48,6 +61,8 @@ export function registerIpc(ctx: IpcContext): void {
     if (!(await toolchainAt(dir))) throw new Error(`${dir} does not contain bin\\cl6x.exe`)
     return ctx.setCompilerRoot(dir)
   })
+  ipcMain.handle('build:compilerInfo', async () => ({ toolchain: ctx.getToolchain(), chosen: await ctx.compilerChosen() }))
+  ipcMain.handle('build:autoCompiler', () => ctx.resetCompilerRoot())
 
   let building = false
   ipcMain.handle('build:run', async (_e, projectDir: string, kind: BuildKind) => {

@@ -7,6 +7,8 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
     {
       label: 'File',
       submenu: [
+        { label: 'New', submenu: [{ label: 'CCS Project...', click: send('file.newProject') }] },
+        { type: 'separator' },
         { label: 'Save', accelerator: 'CmdOrCtrl+S', click: send('file.save') },
         { label: 'Save All', accelerator: 'CmdOrCtrl+Shift+S', click: send('file.saveAll') },
         { type: 'separator' },
@@ -17,6 +19,7 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
       ]
     },
     { label: 'Edit', submenu: [{ role: 'cut' }, { role: 'copy' }, { role: 'paste' }] },
+    { label: 'View', submenu: [{ label: 'Memory Browser', click: send('view.memoryBrowser') }] },
     {
       label: 'Project',
       submenu: [
@@ -54,7 +57,7 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
             { label: 'CCS Debug', click: send('window.debugPerspective') }
           ]
         },
-        { label: 'Preferences', submenu: [{ label: 'C6000 Compiler Location...', click: send('window.compilerLocation') }] },
+        { label: 'Preferences...', click: send('window.preferences') },
         { type: 'separator' },
         { role: 'toggleDevTools' },
         { role: 'reload', accelerator: 'CmdOrCtrl+Shift+R' }
