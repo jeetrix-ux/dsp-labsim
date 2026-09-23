@@ -1,15 +1,18 @@
 import { promises as fs } from 'fs'
 import * as path from 'path'
 import type { BuildKind, BuildResult, Diagnostic, Toolchain } from '@shared/build'
+import { failBuild, type Emit } from './buildResult'
 import { compileArgs, linkArgs, renderCommand, toSpawnArgs } from './commands'
 import { isStale, parseDepFile } from './depfile'
 import { parseDiagnostics } from './diagnostics'
+import { frontendCheck, runFallbackBuild } from './fallback'
 import { loadProgramImage } from './image'
 import { readBuildConfig } from './projectConfig'
 import { runProcess } from './runProcess'
+import { findSources, OUT_SUBDIR } from './sources'
 
-export const OUT_SUBDIR = path.join('.labsim', 'Debug')
-const SKIP_DIRS = new Set(['debug', 'release'])
+export { findSources, objectName, OUT_SUBDIR } from './sources'
+
 const FLAGS_FILE = 'labsim-flags.json'
 const DIAGS_FILE = 'labsim-diagnostics.json'
 
@@ -17,29 +20,7 @@ export interface BuildRequest {
   projectDir: string
   kind: BuildKind
   toolchain: Toolchain | null
-  onOutput(text: string, kind: 'out' | 'info' | 'error'): void
-}
-
-type Emit = BuildRequest['onOutput']
-
-export async function findSources(projectDir: string): Promise<string[]> {
-  const out: string[] = []
-  const walk = async (dir: string): Promise<void> => {
-    const entries = (await fs.readdir(dir, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))
-    for (const e of entries) {
-      if (e.name.startsWith('.')) continue
-      const p = path.join(dir, e.name)
-      if (e.isDirectory() && !(dir === projectDir && SKIP_DIRS.has(e.name.toLowerCase()))) await walk(p)
-      else if (e.isFile() && e.name.toLowerCase().endsWith('.c')) out.push(p)
-    }
-  }
-  await walk(projectDir)
-  // Files in the project root first, then subfolders, each alphabetical.
-  return out.sort((a, b) => {
-    const da = path.dirname(a) === projectDir ? 0 : 1
-    const db = path.dirname(b) === projectDir ? 0 : 1
-    return da - db || a.localeCompare(b)
-  })
+  onOutput: Emit
 }
 
 async function readJson<T>(file: string, fallback: T): Promise<T> {
@@ -51,13 +32,6 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
 }
 
 const fwd = (p: string): string => p.replace(/\\/g, '/')
-
-function fail(emit: Emit, message: string): BuildResult {
-  emit(message, 'error')
-  emit('', 'out')
-  emit('**** Build Finished ****', 'out')
-  return { ok: false, diagnostics: [{ file: null, line: null, severity: 'error', code: 'LABSIM', message }], image: null }
-}
 
 async function clean(projectDir: string, name: string, emit: Emit): Promise<BuildResult> {
   emit(`**** Clean-only build of configuration Debug for project ${name} ****`, 'out')
@@ -85,13 +59,11 @@ export async function runBuild(req: BuildRequest): Promise<BuildResult> {
 
   emit(`**** Build of configuration Debug for project ${name} ****`, 'out')
   emit('', 'out')
-  if (!toolchain) {
-    return fail(emit, 'C6000 compiler (cl6x) not found. Install Code Composer Studio or set the compiler location in Window > Preferences.')
-  }
+  if (!toolchain) return runFallbackBuild({ projectDir, outDir, name, emit })
 
   const cfg = await readBuildConfig(projectDir, toolchain.root)
   const sources = await findSources(projectDir)
-  if (sources.length === 0) return fail(emit, `No C source files in project ${name}.`)
+  if (sources.length === 0) return failBuild(emit, `No C source files in project ${name}.`)
   await fs.mkdir(outDir, { recursive: true })
 
   // Any change of options or compiler invalidates every object.
@@ -158,7 +130,7 @@ export async function runBuild(req: BuildRequest): Promise<BuildResult> {
   }
 
   if (!cfg.linkerCommandFile) {
-    const r = fail(emit, `No linker command file (.cmd) in project ${name}. Copy C6748.cmd from another project.`)
+    const r = failBuild(emit, `No linker command file (.cmd) in project ${name}. Copy C6748.cmd from another project.`)
     return { ...r, diagnostics: [...diagnostics, ...r.diagnostics] }
   }
   const cmdPath = path.join(projectDir, cfg.linkerCommandFile)
@@ -189,6 +161,7 @@ export async function runBuild(req: BuildRequest): Promise<BuildResult> {
     emit(`'${outName}' is up to date.`, 'out')
   }
 
+  frontendCheck(sources, cfg, toolchain.root, outDir, emit)
   emit('', 'out')
   emit('**** Build Finished ****', 'out')
   const image = await loadProgramImage(outPath, mapPath, objs.map((o) => ({ source: o.source, objPath: o.objPath })))

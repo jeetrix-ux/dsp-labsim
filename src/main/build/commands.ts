@@ -24,7 +24,13 @@ function common(cfg: BuildConfig): Arg[] {
 }
 
 function diagFlags(cfg: BuildConfig): string[] {
-  return ['-g', ...cfg.diagWarnings.map((w) => `--diag_warning=${w}`), '--diag_wrap=off', '--display_error_number']
+  return [
+    '-g',
+    ...(cfg.dialect === 'c99' ? ['--c99'] : []),
+    ...cfg.diagWarnings.map((w) => `--diag_warning=${w}`),
+    '--diag_wrap=off',
+    '--display_error_number'
+  ]
 }
 
 export function compileArgs(cfg: BuildConfig, src: { rel: string; objDir: string | null; depFile: string }): Arg[] {

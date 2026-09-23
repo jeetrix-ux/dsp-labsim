@@ -97,7 +97,7 @@ export function createAppStore(api: LabsimApi) {
       get().print(MAIN_CONSOLE, `Workspace: ${workspace} (${n} project${n === 1 ? '' : 's'})`, 'info')
       const tc = await api.getToolchain()
       if (tc) get().print(MAIN_CONSOLE, `C6000 compiler: ${tc.root} (v${tc.version})`, 'info')
-      else get().print(MAIN_CONSOLE, 'C6000 compiler (cl6x) not found. Set it in Window > Preferences > C6000 Compiler Location.', 'error')
+      else get().print(MAIN_CONSOLE, "C6000 compiler (cl6x) not found. Builds will use the LabSim front-end; set Window > Preferences > C6000 Compiler Location to use TI's compiler.", 'error')
     },
 
     async refresh() {

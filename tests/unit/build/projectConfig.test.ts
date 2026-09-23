@@ -22,8 +22,14 @@ describe('parseCproject', () => {
       stackSize: '0x800',
       libraries: ['libc.a'],
       searchPaths: ['C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-c6000_8.3.12/lib', 'C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-c6000_8.3.12/include'],
-      linkerCommandFile: 'C6748.cmd'
+      linkerCommandFile: 'C6748.cmd',
+      dialect: 'c89'
     })
+  })
+  it('reads the C dialect option', () => {
+    const xml = `<configuration name="Debug"><option superClass="com.ti.ccstudio.buildDefinitions.C6000_8.3.compilerID.C_DIALECT" value="com.ti.ccstudio.buildDefinitions.C6000_8.3.compilerID.C_DIALECT.C99" valueType="enumerated"/></configuration>`
+    expect(parseCproject(xml, 'p', DIR, CGT).dialect).toBe('c99')
+    expect(defaultConfig('p', DIR, CGT).dialect).toBe('c89')
   })
   it('picks up changed heap, stack, optimisation and defines', () => {
     const xml = `<cproject><storageModule><cconfiguration>

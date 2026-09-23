@@ -82,9 +82,12 @@ cl6x -mv6740 --define=c6748 -g --diag_warning=225 --diag_wrap=off --display_erro
 - **Program image**: read from the ELF `.out` (our own ELF32 reader). It contains every data
   symbol (global and file-static) with its address and size, `.stack`, `.sysmem` (heap) and
   `.bss/.far` placement, and the memory configuration from the `.map`.
-- **Fallback when `cl6x` is missing:** the build uses our front-end's diagnostics, and a
-  synthetic linker places globals in SHRAM (0x80000000) using the same section order. The
-  console says the fallback is in use.
+- **Fallback when `cl6x` is missing:** the build uses LabSim's front-end, which gives cl6x-numbered diagnostics
+  (verified against 179 reference cases). A synthetic linker then reads MEMORY/SECTIONS from the project's
+  `.cmd`, puts objects in cl6x's sections (`.bss`/`.neardata` for scalars, `.far`/`.fardata` for aggregates,
+  `.const` for const data), assumes 0x7000 bytes of `.text`, and places sections in SECTIONS order. The console
+  says the fallback is in use. After every successful `cl6x` build the front-end also checks the program, and
+  the console warns when LabSim cannot run something `cl6x` accepted.
 - The interpreter always parses the source itself. `cl6x` is the authority on *whether* the
   program builds and *where* things live; the interpreter is the authority on *what it does*.
 
@@ -97,6 +100,9 @@ pointers, arrays of arrays, `sizeof`, casts, `static`/`extern`/`const`/`volatile
 `switch`, and variadic functions via `stdarg.h`. TI extensions are accepted and ignored where
 they are only hints: `#pragma DATA_ALIGN`, `DATA_SECTION`, `MUST_ITERATE`, `UNROLL`,
 `restrict`, `interrupt`, `cregister`, `near`/`far`.
+The dialect follows the project's C_DIALECT option, like cl6x: by default relaxed C89 (`__STDC_VERSION__`
+199409L), where `for (int i …)` is error #29. C99 (`--c99`) allows it. The other C99 features above are accepted
+in both modes.
 
 **Preprocessor.** Full: object and function macros, `#`/`##`, `#if`/`#elif` with `defined`,
 `#include` of project headers. Standard and TI headers resolve to our own built-in versions,

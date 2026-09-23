@@ -17,6 +17,10 @@ describe('compileArgs', () => {
         '--preproc_with_compile --preproc_dependency="main.d_raw" "../../main.c"'
     )
   })
+  it('passes --c99 when the project uses C99', () => {
+    const line = renderCommand(CL6X, compileArgs({ ...cfg, dialect: 'c99' }, { rel: '../../main.c', objDir: null, depFile: 'main.d_raw' }))
+    expect(line).toContain('--define=c6748 -g --c99 --diag_warning=225')
+  })
   it('passes unquoted values to spawn', () => {
     const args = toSpawnArgs(compileArgs(cfg, { rel: '../../main.c', objDir: null, depFile: 'main.d_raw' }))
     expect(args[1]).toBe('--include_path=C:/Users/jeetm/workspace_v12/exp11')

@@ -17,6 +17,8 @@ export interface BuildConfig {
   searchPaths: string[]
   /** Project-relative linker command file name from .cproject, if any. */
   linkerCommandFile: string | null
+  /** C89 (cl6x's default, relaxed) or C99 (--c99), from the project's C_DIALECT option. */
+  dialect: 'c89' | 'c99'
 }
 
 const fwd = (p: string): string => p.replace(/\\/g, '/')
@@ -34,7 +36,8 @@ export function defaultConfig(name: string, dir: string, cgtRoot: string): Build
     stackSize: '0x800',
     libraries: ['libc.a'],
     searchPaths: [fwd(cgtRoot) + '/lib', fwd(cgtRoot) + '/include'],
-    linkerCommandFile: null
+    linkerCommandFile: null,
+    dialect: 'c89'
   }
 }
 
@@ -103,6 +106,8 @@ export function parseCproject(xml: string, name: string, dir: string, cgtRoot: s
   cfg.optLevel = opt !== null && /^[0-4]$/.test(opt) ? opt : null
   const tag = (list('OPT_TAGS') ?? []).find((t) => t.startsWith('LINKER_COMMAND_FILE='))
   cfg.linkerCommandFile = tag ? tag.slice('LINKER_COMMAND_FILE='.length) || null : null
+  const dialect = value('C_DIALECT')?.split('.').pop()?.toUpperCase()
+  cfg.dialect = dialect === 'C99' || dialect === 'C11' ? 'c99' : 'c89'
   return cfg
 }
 

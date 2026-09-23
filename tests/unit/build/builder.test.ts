@@ -42,12 +42,40 @@ describe('findSources', () => {
   })
 })
 
-describe('runBuild without a compiler', () => {
-  it('fails with an explanation', async () => {
-    const r = await runBuild({ projectDir: project('p', GOOD), kind: 'build', toolchain: null, onOutput })
+describe('runBuild without a compiler (LabSim fallback)', () => {
+  it('builds with the LabSim front-end and lays the program out in SHRAM', async () => {
+    const dir = project('p', GOOD)
+    const r = await runBuild({ projectDir: dir, kind: 'build', toolchain: null, onOutput })
+    expect(r.ok).toBe(true)
+    expect(r.diagnostics).toEqual([])
+    const out = text()
+    expect(out).toContain('this build uses the LabSim C front-end')
+    expect(out).toContain('Invoking: LabSim C Front-End')
+    expect(out).toContain('Finished building target: "p.out"')
+    expect(out).toContain('**** Build Finished ****')
+    expect(r.image?.globals.y).toMatchObject({ section: '.far', size: 32 })
+    expect(r.image?.globals.y.addr).toBeGreaterThanOrEqual(0x80000000)
+    expect(r.image?.statics[join(dir, 'main.c')].n).toMatchObject({ section: '.bss', size: 4 })
+  })
+  it('reports compile errors in cl6x form', async () => {
+    const dir = project('bad', BAD)
+    const r = await runBuild({ projectDir: dir, kind: 'build', toolchain: null, onOutput })
     expect(r.ok).toBe(false)
-    expect(r.diagnostics[0].message).toContain('C6000 compiler (cl6x) not found')
-    expect(text()).toContain('**** Build Finished ****')
+    expect(r.diagnostics).toEqual([
+      { file: join(dir, 'main.c'), line: 5, severity: 'error', code: '20', message: 'identifier "z" is undefined' },
+      { file: join(dir, 'main.c'), line: 4, severity: 'warning', code: '179-D', message: 'variable "unused" was declared but never referenced' }
+    ])
+    const out = text()
+    expect(out).toContain('"../../main.c", line 5: error #20: identifier "z" is undefined')
+    expect(out).toContain('1 error detected in the compilation of "../../main.c".')
+    expect(out).toContain('Build stopped: 1 file failed to compile; "bad.out" not built.')
+  })
+  it('reports unresolved functions like the TI linker', async () => {
+    const r = await runBuild({ projectDir: project('undef', 'int helper(int);\nint main(void)\n{\n    return helper(2);\n}\n'), kind: 'build', toolchain: null, onOutput })
+    expect(r.ok).toBe(false)
+    expect(r.diagnostics.map((d) => d.code)).toEqual(['10234-D', '10234-D', '10010'])
+    expect(r.diagnostics[0].message).toBe('unresolved symbol helper, first referenced in ./main.obj')
+    expect(text()).toContain('error #10010: errors encountered during linking; "undef.out" not built')
   })
 })
 
@@ -58,6 +86,7 @@ describe.skipIf(!tc)('runBuild with cl6x', () => {
     expect(r.ok).toBe(true)
     expect(r.diagnostics).toEqual([])
     const out = text()
+    expect(out).not.toContain("LabSim's own front-end cannot run it")
     expect(log[0].text).toBe('**** Build of configuration Debug for project good ****')
     expect(out).toContain('Building file: "../../main.c"')
     expect(out).toContain('Invoking: C6000 Compiler')
@@ -136,5 +165,13 @@ describe.skipIf(!tc)('runBuild with cl6x', () => {
     const r = await runBuild({ projectDir: dir, kind: 'build', toolchain: tc, onOutput })
     expect(r.ok).toBe(false)
     expect(r.diagnostics.some((d) => d.message.includes('No linker command file'))).toBe(true)
+  }, 60_000)
+
+  it("warns when LabSim's front-end cannot read a program that cl6x builds", async () => {
+    const src = 'struct flags { unsigned a : 3; } f;\nint main(void)\n{\n    f.a = 1;\n    return f.a;\n}\n'
+    const r = await runBuild({ projectDir: project('bits', src), kind: 'build', toolchain: tc, onOutput })
+    expect(r.ok).toBe(true)
+    expect(text()).toContain("LabSim: cl6x built this program, but LabSim's own front-end cannot run it yet")
+    expect(text()).toContain('unsupported construct bit-field')
   }, 60_000)
 })
