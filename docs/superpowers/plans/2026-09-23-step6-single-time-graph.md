@@ -1187,7 +1187,7 @@ Create `tests/unit/graphStore.test.ts`:
 
 ```ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createStore } from 'zustand/vanilla'
+import { createStore, type StoreApi } from 'zustand/vanilla'
 import type { FileDialogOptions, LabsimApi } from '@shared/api'
 import type { DebugCommand } from '@shared/debug'
 import type { SessionStatus } from '../../src/renderer/src/debugStore'
@@ -1238,7 +1238,7 @@ type Mini = { status: SessionStatus; project: string | null; selectedFrame: numb
 
 let api: ReturnType<typeof fakeApi>
 let app: AppStore
-let debug: ReturnType<typeof createStore<Mini>>
+let debug: StoreApi<Mini>
 let storage: Map<string, string>
 let graphs: GraphStore
 const settle = async (): Promise<void> => {
