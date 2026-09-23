@@ -24,3 +24,23 @@ test.afterEach(async () => {
 test('window is titled DSP LabSim', async () => {
   await expect(page).toHaveTitle(/DSP LabSim/)
 })
+
+test('exposes the workspace API to the renderer', async () => {
+  const result = await page.evaluate(async () => {
+    const projects = await window.labsim.listProjects()
+    const tree = await window.labsim.readTree(projects[0].dir)
+    const src = await window.labsim.readFile(tree[0].path)
+    let escaped = 'no error'
+    try {
+      await window.labsim.readFile(projects[0].dir + '\\..\\..\\outside.c')
+    } catch (e) {
+      escaped = String(e)
+    }
+    return { names: projects.map((p) => p.name), file: tree[0].name, src, escaped, ws: await window.labsim.getWorkspace() }
+  })
+  expect(result.names).toEqual(['demo'])
+  expect(result.file).toBe('main.c')
+  expect(result.src).toContain('int main(void)')
+  expect(result.escaped).toContain('Path outside workspace')
+  expect(result.ws).toBe(ws)
+})
