@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import type { BuildOutputLine, LabsimApi, MenuCommand } from '@shared/api'
+import type { DebugEvent } from '@shared/debug'
 
 const api: LabsimApi = {
   getWorkspace: () => ipcRenderer.invoke('ws:get'),
@@ -20,6 +21,14 @@ const api: LabsimApi = {
     const handler = (_e: IpcRendererEvent, line: BuildOutputLine): void => cb(line)
     ipcRenderer.on('build:output', handler)
     return () => ipcRenderer.removeListener('build:output', handler)
+  },
+  debugStart: (projectDir) => ipcRenderer.invoke('debug:start', projectDir),
+  debugRequest: (cmd) => ipcRenderer.invoke('debug:request', cmd),
+  debugTerminate: () => ipcRenderer.invoke('debug:terminate'),
+  onDebugEvent(cb) {
+    const handler = (_e: IpcRendererEvent, event: DebugEvent): void => cb(event)
+    ipcRenderer.on('debug:event', handler)
+    return () => ipcRenderer.removeListener('debug:event', handler)
   }
 }
 

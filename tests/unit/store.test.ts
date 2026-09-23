@@ -35,6 +35,10 @@ function fakeApi(): FakeApi {
       return api.nextBuild
     },
     onBuildOutput: () => () => {},
+    debugStart: async () => {},
+    debugRequest: async () => null,
+    debugTerminate: async () => {},
+    onDebugEvent: () => () => {},
     files: { [MAIN]: 'int main(void)\r\n{\r\n}\r\n', [CMD]: 'MEMORY {}' } as Record<string, string>,
     treeCalls: 0,
     nextWorkspace: null as string | null,

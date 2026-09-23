@@ -1,4 +1,5 @@
 import type { BuildKind, BuildOutputLine, BuildResult, Toolchain } from './build'
+import type { DebugCommand, DebugEvent } from './debug'
 
 export type { BuildKind, BuildOutputLine, BuildResult, Diagnostic, Toolchain } from './build'
 
@@ -26,6 +27,16 @@ export type MenuCommand =
   | 'window.editPerspective'
   | 'window.debugPerspective'
   | 'window.compilerLocation'
+  | 'run.debug'
+  | 'run.resume'
+  | 'run.suspend'
+  | 'run.terminate'
+  | 'run.restart'
+  | 'run.reload'
+  | 'run.stepInto'
+  | 'run.stepOver'
+  | 'run.stepReturn'
+  | 'run.toLine'
 
 export interface LabsimApi {
   getWorkspace(): Promise<string>
@@ -42,6 +53,11 @@ export interface LabsimApi {
   chooseCompiler(): Promise<Toolchain | null>
   build(projectDir: string, kind: BuildKind): Promise<BuildResult>
   onBuildOutput(cb: (line: BuildOutputLine) => void): () => void
+  /** Starts debugging the project's last successful build (stopping any running session first). */
+  debugStart(projectDir: string): Promise<void>
+  debugRequest(cmd: DebugCommand): Promise<unknown>
+  debugTerminate(): Promise<void>
+  onDebugEvent(cb: (event: DebugEvent) => void): () => void
 }
 
 declare global {

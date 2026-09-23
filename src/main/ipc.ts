@@ -1,8 +1,11 @@
 import { dialog, ipcMain, type BrowserWindow } from 'electron'
 import * as path from 'path'
 import type { BuildKind, BuildOutputLine, Toolchain } from '@shared/build'
+import type { DebugCommand } from '@shared/debug'
 import type { ProgramImage } from '@shared/program'
 import { runBuild } from './build/builder'
+import { debugLaunch } from './debug/launch'
+import { DebugSession } from './debug/session'
 import { toolchainAt } from './build/toolchain'
 import { assertInside, listProjects, readTextFile, readTree, writeTextFile } from './workspace'
 
@@ -65,5 +68,30 @@ export function registerIpc(ctx: IpcContext): void {
     } finally {
       building = false
     }
+  })
+
+  let session: DebugSession | null = null
+  ipcMain.handle('debug:start', async (_e, projectDir: string) => {
+    const dir = assertInside(ctx.getWorkspace(), projectDir)
+    const image = ctx.images.get(dir)
+    if (!image) throw new Error(`Build ${path.basename(dir)} successfully before debugging it.`)
+    const old = session
+    session = null
+    await old?.terminate()
+    const launch = await debugLaunch(dir, image, ctx.getToolchain())
+    const s = new DebugSession(launch, (event) => {
+      ctx.getWindow()?.webContents.send('debug:event', event)
+      if (event.event === 'ended' && session === s) session = null
+    })
+    session = s
+  })
+  ipcMain.handle('debug:request', (_e, cmd: DebugCommand) => {
+    if (!session) throw new Error('No debug session is running.')
+    return session.request(cmd)
+  })
+  ipcMain.handle('debug:terminate', async () => {
+    const s = session
+    session = null
+    await s?.terminate()
   })
 }
