@@ -86,6 +86,7 @@ export async function runFallbackBuild({ projectDir, outDir, name, emit }: Fallb
   emit("Its diagnostics follow cl6x 8.3. Set Window > Preferences > C6000 Compiler Location to build with TI's compiler.", 'info')
   emit('', 'out')
   const cfg = await readBuildConfig(projectDir, FALLBACK_CGT)
+  for (const n of cfg.notes ?? []) emit(`LabSim: ${n}`, 'error')
   const sources = await findSources(projectDir)
   if (sources.length === 0) return failBuild(emit, `No C source files in project ${name}.`)
   await fs.mkdir(outDir, { recursive: true })

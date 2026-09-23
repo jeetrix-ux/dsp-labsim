@@ -62,6 +62,7 @@ export async function runBuild(req: BuildRequest): Promise<BuildResult> {
   if (!toolchain) return runFallbackBuild({ projectDir, outDir, name, emit })
 
   const cfg = await readBuildConfig(projectDir, toolchain.root)
+  for (const n of cfg.notes ?? []) emit(`LabSim: ${n}`, 'error')
   const sources = await findSources(projectDir)
   if (sources.length === 0) return failBuild(emit, `No C source files in project ${name}.`)
   await fs.mkdir(outDir, { recursive: true })
