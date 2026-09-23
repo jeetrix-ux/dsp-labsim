@@ -3,6 +3,7 @@ import { Diags, FatalError, type FrontDiagnostic } from './diag'
 import { BUILTIN_HEADERS, PRELUDE } from './headers'
 import { parseUnit } from './parser'
 import { isBuiltinFile, preprocess, type PreprocessOptions } from './preprocessor'
+import type { FunctionType } from './types'
 
 export interface CompileOptions extends PreprocessOptions {
   /** --diag_warning numbers (CCS passes 225). */
@@ -90,16 +91,27 @@ export function linkProgram(units: TranslationUnit[]): LinkResult {
   return { program: problems.length === 0 && main ? { units, globals, functions, main } : null, problems }
 }
 
-let libraryCache: { functions: Set<string>; objects: Set<string> } | null = null
+export interface Library {
+  functions: Set<string>
+  objects: Set<string>
+  /** The declared type of every library function, from LabSim's built-in headers. */
+  prototypes: Map<string, FunctionType>
+}
+
+let libraryCache: Library | null = null
 
 /** What the LabSim runtime provides: every function and object its built-in headers declare. */
-export function library(): { functions: Set<string>; objects: Set<string> } {
+export function library(): Library {
   if (libraryCache) return libraryCache
   const headers = Object.keys(BUILTIN_HEADERS).filter((h) => h !== PRELUDE && !BUILTIN_HEADERS[h].includes('#error'))
   const file = '<builtin>/__labsim_library.c'
-  const source = headers.map((h) => `#include <${h}>`).join('\n')
+  const source = headers.map((h) => `#include <${h}>`).join('\n') + '\n'
   const r = compileUnit(file, { readFile: (f) => (f === file ? source : null), includePaths: [], defines: [], dialect: 'c99', diagWarnings: [] })
   if (!r.unit) throw new Error(`LabSim's built-in headers do not compile: ${r.diagnostics[0]?.message}`)
-  libraryCache = { functions: new Set(r.unit.funcs.map((f) => f.name)), objects: new Set(r.unit.objects.map((o) => o.name)) }
+  libraryCache = {
+    functions: new Set(r.unit.funcs.map((f) => f.name)),
+    objects: new Set(r.unit.objects.map((o) => o.name)),
+    prototypes: new Map(r.unit.funcs.map((f) => [f.name, f.type]))
+  }
   return libraryCache
 }

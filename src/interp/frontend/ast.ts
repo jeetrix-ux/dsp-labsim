@@ -81,7 +81,8 @@ export type Expr =
   | (E & { k: 'var'; sym: VarSym })
   | (E & { k: 'func'; sym: FuncSym })
   | (E & { k: 'unary'; op: '-' | '+' | '~' | '!'; arg: Expr })
-  | (E & { k: 'deref'; arg: Expr })
+  /** `unaligned`: TI's `_memN` intrinsics, which may use any byte address (LDNW/LDNDW). */
+  | (E & { k: 'deref'; arg: Expr; unaligned?: boolean })
   | (E & { k: 'addr'; arg: Expr })
   | (E & { k: 'binary'; op: BinOp; left: Expr; right: Expr })
   | (E & { k: 'ptradd'; ptr: Expr; index: Expr; scale: number; sub: boolean })

@@ -458,7 +458,8 @@ export class Sema {
     if (isErr(r)) return errorExpr(at)
     if (!isPointer(r.type)) return this.fail(at, M.pointerRequired())
     const t = MEM_TYPES[name]
-    return { k: 'deref', loc: at, type: t, arg: { k: 'cast', loc: at, type: pointerTo(t), arg: r, implicit: false } }
+    const deref: Expr = { k: 'deref', loc: at, type: t, arg: { k: 'cast', loc: at, type: pointerTo(t), arg: r, implicit: false } }
+    return { ...deref, unaligned: !name.startsWith('_a') }
   }
 
   // ------------------------------------------------------------ calls and casts

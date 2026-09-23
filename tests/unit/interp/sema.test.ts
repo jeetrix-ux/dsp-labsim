@@ -191,3 +191,13 @@ describe('literals', () => {
     expect(diags.list.map((d) => d.code)).toEqual(['1696-D'])
   })
 })
+
+describe('memory intrinsics', () => {
+  it('marks _memN accesses unaligned and _amemN accesses aligned', () => {
+    const { s } = sema()
+    const p = s.varRef(v('p', pointerTo(T.char)), L)
+    expect(s.memAccess('_mem4', p, L)).toMatchObject({ k: 'deref', type: T.uint, unaligned: true })
+    expect(s.memAccess('_memd8_const', p, L)).toMatchObject({ k: 'deref', unaligned: true })
+    expect(s.memAccess('_amem4', p, L)).toMatchObject({ k: 'deref', unaligned: false })
+  })
+})

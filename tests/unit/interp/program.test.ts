@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import * as path from 'path'
 import { compileUnit, library, linkProgram, type CompileOptions } from '../../../src/interp/frontend/program'
+import { typeToString } from '../../../src/interp/frontend/types'
 
 const P = (f: string): string => path.resolve('/proj', f)
 
@@ -71,5 +72,12 @@ describe('library', () => {
       expect(lib.functions.has(f), f).toBe(true)
     }
     for (const o of ['_ftable', 'errno', 'CSR', 'TSCL', 'TSCH']) expect(lib.objects.has(o), o).toBe(true)
+  })
+  it('gives the real prototype of every library function', () => {
+    const { prototypes } = library()
+    expect(typeToString(prototypes.get('sqrt')!)).toBe('double (double)')
+    expect(typeToString(prototypes.get('printf')!)).toBe('int (const char *, ...)')
+    expect(typeToString(prototypes.get('_dotp2')!)).toBe('int (int, int)')
+    expect(prototypes.size).toBe(library().functions.size)
   })
 })
