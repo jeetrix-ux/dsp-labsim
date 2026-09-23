@@ -3,7 +3,8 @@ import * as monaco from 'monaco-editor'
 import { useCallback, useEffect, useRef, type JSX } from 'react'
 import type { editor as MonacoEditor } from 'monaco-editor'
 import { languageFor } from '@shared/files'
-import { appStore, useApp } from '../appStore'
+import { appStore, debugStore, useApp, useDebug } from '../appStore'
+import { samePath as sameFile } from '../debugStore'
 import { isDirty } from '../store'
 
 /** Monaco model URI for a Windows path. `Uri.parse('C:\\x')` would treat `c:` as a scheme. */
@@ -32,6 +33,13 @@ const EDITOR_OPTIONS = {
   scrollBeyondLastLine: false
 } as const
 
+let activeEditor: MonacoEditor.IStandaloneCodeEditor | null = null
+
+/** The cursor line in the editor (Run to Line). */
+export function getCursorLine(): number | null {
+  return activeEditor?.getPosition()?.lineNumber ?? null
+}
+
 export function EditorArea(): JSX.Element {
   const tabs = useApp((s) => s.tabs)
   const active = useApp((s) => s.activeTab)
@@ -52,6 +60,29 @@ export function EditorArea(): JSX.Element {
   const reveal = useApp((s) => s.reveal)
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null)
   const revealedSeq = useRef(0)
+  const breakpoints = useDebug((s) => s.breakpoints)
+  const pc = useDebug((s) => s.pc)
+  const debugDecorations = useRef<MonacoEditor.IEditorDecorationsCollection | null>(null)
+
+  const applyDebug = useCallback(() => {
+    const ed = editorRef.current
+    const path = appStore.getState().activeTab
+    const model = ed?.getModel()
+    if (!ed || !path || !model || !debugDecorations.current) return
+    const d = debugStore.getState()
+    const decorations: MonacoEditor.IModelDeltaDecoration[] = []
+    for (const b of d.breakpoints) {
+      if (!sameFile(b.file, path) || b.line > model.getLineCount()) continue
+      decorations.push({
+        range: new monaco.Range(b.line, 1, b.line, 1),
+        options: { glyphMarginClassName: b.enabled ? 'bp-glyph' : 'bp-glyph off', glyphMarginHoverMessage: { value: `Breakpoint: line ${b.line}` } }
+      })
+    }
+    if (d.pc && sameFile(d.pc.file, path) && d.pc.line <= model.getLineCount()) {
+      decorations.push({ range: new monaco.Range(d.pc.line, 1, d.pc.line, 1), options: { isWholeLine: true, className: 'pc-line', linesDecorationsClassName: 'pc-bar' } })
+    }
+    debugDecorations.current.set(decorations)
+  }, [])
 
   const applyMarkers = useCallback(() => {
     for (const t of appStore.getState().tabs) {
@@ -84,12 +115,25 @@ export function EditorArea(): JSX.Element {
 
   useEffect(applyMarkers, [applyMarkers, tabs, active])
   useEffect(applyReveal, [applyReveal, reveal, active])
+  useEffect(applyDebug, [applyDebug, breakpoints, pc, active, tabs])
 
   const onMount: OnMount = (editor, m) => {
     editorRef.current = editor
+    activeEditor = editor
+    debugDecorations.current = editor.createDecorationsCollection()
+    // CCS toggles a breakpoint with a double-click in the left margin.
+    editor.onMouseDown((e) => {
+      if (e.event.detail !== 2) return
+      const t = e.target.type
+      if (t !== m.editor.MouseTargetType.GUTTER_GLYPH_MARGIN && t !== m.editor.MouseTargetType.GUTTER_LINE_NUMBERS) return
+      const line = e.target.position?.lineNumber
+      const path = appStore.getState().activeTab
+      if (line && path) void debugStore.getState().toggleBreakpoint(path, line)
+    })
     editor.addCommand(m.KeyMod.CtrlCmd | m.KeyCode.KeyS, () => void appStore.getState().saveTab())
     applyMarkers()
     applyReveal()
+    applyDebug()
   }
 
   return (

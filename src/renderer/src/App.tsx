@@ -1,18 +1,57 @@
 import { useEffect, type JSX } from 'react'
 import type { MenuCommand } from '@shared/api'
 import { basename } from '@shared/files'
-import { appStore, useApp } from './appStore'
+import { appStore, debugStore, useApp } from './appStore'
 import { isDirty } from './store'
 import { BottomPanel } from './components/BottomPanel'
 import { DebugView, VariablesPanel } from './components/DebugViews'
-import { EditorArea } from './components/EditorArea'
+import { EditorArea, getCursorLine } from './components/EditorArea'
 import { ProjectExplorer } from './components/ProjectExplorer'
 import { Splitter } from './components/Splitter'
 import { Toolbar } from './components/Toolbar'
 
+function runToCursor(): void {
+  const file = appStore.getState().activeTab
+  const line = getCursorLine()
+  if (file && line) void debugStore.getState().runToLine(file, line)
+}
+
+/** CCS's debug keys; caught before Monaco (which uses F8 itself) and the window see them. */
+const KEYS: Record<string, MenuCommand> = {
+  F11: 'run.debug',
+  F8: 'run.resume',
+  'Alt+F8': 'run.suspend',
+  'Ctrl+F2': 'run.terminate',
+  F5: 'run.stepInto',
+  F6: 'run.stepOver',
+  F7: 'run.stepReturn',
+  'Ctrl+R': 'run.toLine'
+}
+
+function onKey(e: KeyboardEvent): void {
+  const key = e.key.length === 1 ? e.key.toUpperCase() : e.key
+  const combo = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.shiftKey ? 'Shift+' : ''}${key}`
+  const cmd = KEYS[combo]
+  if (!cmd) return
+  e.preventDefault()
+  e.stopPropagation()
+  handleMenu(cmd)
+}
+
 function handleMenu(cmd: MenuCommand): void {
   const s = appStore.getState()
+  const d = debugStore.getState()
   switch (cmd) {
+    case 'run.debug': void d.start(); break
+    case 'run.resume': void d.resume(); break
+    case 'run.suspend': void d.suspend(); break
+    case 'run.terminate': void d.terminate(); break
+    case 'run.restart': void d.restart(); break
+    case 'run.reload': void d.reload(); break
+    case 'run.stepInto': void d.stepInto(); break
+    case 'run.stepOver': void d.stepOver(); break
+    case 'run.stepReturn': void d.stepReturn(); break
+    case 'run.toLine': runToCursor(); break
     case 'file.save': void s.saveTab(); break
     case 'file.saveAll': void s.saveAll(); break
     case 'file.refresh': void s.refresh(); break
@@ -40,9 +79,13 @@ export function App(): JSX.Element {
     void appStore.getState().init()
     const offMenu = window.labsim.onMenu(handleMenu)
     const offBuild = window.labsim.onBuildOutput((line) => appStore.getState().appendBuildOutput(line))
+    const offDebug = window.labsim.onDebugEvent((event) => debugStore.getState().handleEvent(event))
+    window.addEventListener('keydown', onKey, true)
     return () => {
       offMenu()
       offBuild()
+      offDebug()
+      window.removeEventListener('keydown', onKey, true)
     }
   }, [])
 

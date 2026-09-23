@@ -47,3 +47,6 @@ export const FileIcon = ({ name }: { name: string }): JSX.Element => {
     </svg>
   )
 }
+export const RestartIcon = (): JSX.Element => (
+  <svg {...box}><path d="M3 8a5 5 0 1 0 1.6-3.7" stroke="#2e8b3a" strokeWidth="1.8" fill="none" /><path d="M2 1.5v4.5h4.5z" fill="#2e8b3a" /></svg>
+)
