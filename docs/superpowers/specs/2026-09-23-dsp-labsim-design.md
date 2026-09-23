@@ -274,6 +274,26 @@ The plot is drawn on a canvas in CCS's style (white background, grey grid, blue 
 readout of x/y on hover). Several graph windows can be open at once, each docked as a tab in
 the Debug perspective.
 
+**How LabSim fills in the details (Step 6).**
+- **Where the graphs appear.** They open in a graph panel to the right of the editor in CCS Debug, with one tab per graph (`Single Time - 1`, `- 2`, …).
+- **Start Address.** It is evaluated in the selected stack frame (the top frame at a halt):
+  - an array gives where it starts;
+  - a pointer gives where it points;
+  - an integer that is not an object gives that number;
+  - any other object gives where it lives, so a scalar such as `out` scrolls over time.
+- **When the address is resolved.**
+  - Halts and Refresh resolve it again.
+  - Continuous Refresh reuses the last address while the program runs.
+  - A new debug session forgets it.
+- **Use Dc Value For Graph** centres the y axis on Dc Value and draws a dashed line there. The data is not changed.
+- **Magnitude Display Scale = Log** plots 20·log10|v| in dB. A zero sample leaves a gap.
+- **Save Data**
+  - `.csv` writes `Sample,Value` (or `Time (ms),Value`).
+  - `.dat` writes the CCS data-file header `1651 4 <addr> 0 <count>` (hex) and one value per line.
+- **Import/Export** use a `.graphProp` file of `Property=value` lines. This is LabSim's own format.
+- **Per-project memory.** The last-used properties per project are kept in the app's local storage.
+- **Read limit.** One refresh reads at most 1 MiB.
+
 ## Error handling summary
 
 | Situation | Behaviour |

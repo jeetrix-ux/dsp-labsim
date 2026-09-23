@@ -36,6 +36,9 @@ function fakeApi() {
       api.terminated++
     },
     onDebugEvent: () => () => {},
+    chooseSaveFile: async () => null,
+    writeChosenFile: async () => {},
+    openTextFile: async () => null,
     debugRequest: async (cmd: DebugCommand): Promise<unknown> => {
       requests.push(cmd)
       switch (cmd.cmd) {

@@ -1,10 +1,13 @@
 import { dialog, ipcMain, type BrowserWindow } from 'electron'
+import { promises as fs } from 'fs'
 import * as path from 'path'
+import type { FileDialogOptions } from '@shared/api'
 import type { BuildKind, BuildOutputLine, Toolchain } from '@shared/build'
 import type { DebugCommand } from '@shared/debug'
 import type { ProgramImage } from '@shared/program'
 import { runBuild } from './build/builder'
 import { debugLaunch } from './debug/launch'
+import { ChosenFiles } from './chosenFiles'
 import { DebugSession } from './debug/session'
 import { toolchainAt } from './build/toolchain'
 import { assertInside, listProjects, readTextFile, readTree, writeTextFile } from './workspace'
@@ -93,5 +96,25 @@ export function registerIpc(ctx: IpcContext): void {
     const s = session
     session = null
     await s?.terminate()
+  })
+
+  const chosen = new ChosenFiles()
+  ipcMain.handle('file:chooseSave', async (_e, o: FileDialogOptions) => {
+    const win = ctx.getWindow()
+    const options = { title: o.title, defaultPath: o.defaultName, filters: o.filters }
+    const r = win ? await dialog.showSaveDialog(win, options) : await dialog.showSaveDialog(options)
+    if (r.canceled || !r.filePath) return null
+    chosen.add(r.filePath)
+    return r.filePath
+  })
+  ipcMain.handle('file:writeChosen', async (_e, p: string, data: string, encoding: 'utf8' | 'base64') => {
+    await fs.writeFile(chosen.assert(p), Buffer.from(data, encoding))
+  })
+  ipcMain.handle('file:openText', async (_e, o: FileDialogOptions) => {
+    const win = ctx.getWindow()
+    const options = { title: o.title, defaultPath: o.defaultName, filters: o.filters, properties: ['openFile' as const] }
+    const r = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options)
+    if (r.canceled || r.filePaths.length === 0) return null
+    return { path: r.filePaths[0], content: await fs.readFile(r.filePaths[0], 'utf8') }
   })
 }

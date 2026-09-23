@@ -25,6 +25,9 @@ export interface VarNode {
 
 export type StopReason = 'entry' | 'breakpoint' | 'step' | 'suspend' | 'exit' | 'halt'
 
+/** Where a graph's Start Address expression points, or why it does not evaluate. */
+export type AddressResult = { address: number } | { error: string }
+
 export type DebugCommand =
   | { cmd: 'resume' }
   | { cmd: 'stepInto' }
@@ -40,6 +43,7 @@ export type DebugCommand =
   | { cmd: 'children'; frame: number; expr: string; formats: Record<string, NumberFormat> }
   | { cmd: 'assign'; frame: number; expr: string; value: string }
   | { cmd: 'readMemory'; addr: number; length: number }
+  | { cmd: 'address'; frame: number; expr: string }
   | { cmd: 'input'; text: string | null }
 
 export type DebugRequest = DebugCommand & { id: number }

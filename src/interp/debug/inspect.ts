@@ -1,4 +1,4 @@
-import type { FrameInfo, NumberFormat, VarNode } from '@shared/debug'
+import type { AddressResult, FrameInfo, NumberFormat, VarNode } from '@shared/debug'
 import { ExprCompiler, type FrameScope } from '../exec/expr'
 import { LoadError, type Machine } from '../exec/machine'
 import { Trap, hex } from '../exec/memory'
@@ -73,7 +73,7 @@ export class Inspector {
     const r = this.compile(frame, text)
     if ('error' in r) return { ...base, error: r.error }
     const { e, ctx } = r
-    return this.withFrame(ctx, base, () => {
+    return this.withFrame(ctx, (error) => ({ ...base, error }), () => {
       const ex = new ExprCompiler(this.m, ctx.def ? (this.m.scopes.get(ctx.def) ?? NO_FRAME) : NO_FRAME)
       const value = ex.value(e)()
       const address = isLvalue(e) ? (ex.address(e, 'none')() as number) : null
@@ -100,6 +100,23 @@ export class Inspector {
     const r = this.evaluate(frame, `${wrap(text)} = (${valueText})`)
     const now = this.evaluate(frame, text)
     return r.error ? { ...now, error: r.error } : now
+  }
+
+  /** A graph's Start Address: where an array or pointer points, an address constant, or where an object lives. */
+  address(frame: number, text: string): AddressResult {
+    if (!text.trim()) return { error: 'the Start Address is empty' }
+    const r = this.compile(frame, text)
+    if ('error' in r) return r
+    const { e, ctx } = r
+    const t = e.type
+    if (t.kind === 'function' || (t.kind === 'pointer' && t.to.kind === 'function')) return { error: `'${text.trim()}' is a function` }
+    const byValue = t.kind === 'array' || t.kind === 'pointer' || (t.kind === 'int' && !isLvalue(e))
+    if (!byValue && !isLvalue(e)) return { error: `'${text.trim()}' is not an address or an object` }
+    return this.withFrame<AddressResult>(ctx, (error) => ({ error }), () => {
+      const ex = new ExprCompiler(this.m, ctx.def ? (this.m.scopes.get(ctx.def) ?? NO_FRAME) : NO_FRAME)
+      const v = (byValue ? ex.value(e)() : ex.address(e, 'none')()) as number | bigint
+      return { address: typeof v === 'bigint' ? Number(BigInt.asUintN(32, v)) : Number(v) >>> 0 }
+    })
   }
 
   private context(frame: number): Context {
@@ -133,8 +150,8 @@ export class Inspector {
     return { e, ctx }
   }
 
-  /** Runs `run` with the frame pointer of the frame and without bounds notes; runtime errors become the row's error. */
-  private withFrame(ctx: Context, base: VarNode, run: () => VarNode): VarNode {
+  /** Runs `run` with the frame pointer of the frame and without bounds notes; runtime errors go to `fail`. */
+  private withFrame<T>(ctx: Context, fail: (message: string) => T, run: () => T): T {
     const m = this.m
     const fp = m.fp
     const note = m.note
@@ -143,7 +160,7 @@ export class Inspector {
     try {
       return run()
     } catch (err) {
-      if (err instanceof Trap || err instanceof LoadError) return { ...base, error: err.message }
+      if (err instanceof Trap || err instanceof LoadError) return fail(err.message)
       throw err
     } finally {
       m.fp = fp
