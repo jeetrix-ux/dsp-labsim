@@ -44,3 +44,28 @@ test('exposes the workspace API to the renderer', async () => {
   expect(result.escaped).toContain('Path outside workspace')
   expect(result.ws).toBe(ws)
 })
+
+test('shows the workspace projects and a console banner', async () => {
+  await expect(page.locator('.tree-row', { hasText: 'demo' })).toBeVisible()
+  await expect(page.locator('.tree-row', { hasText: 'demo' })).toContainText('[Active - Debug]')
+  await expect(page.locator('.console')).toContainText(`Workspace: ${ws} (1 project)`)
+})
+
+test('expands a project to show its files', async () => {
+  await page.locator('.tree-row', { hasText: 'demo' }).locator('.twisty').click()
+  await expect(page.locator('.tree-row', { hasText: 'main.c' })).toBeVisible()
+})
+
+test('switches to the CCS Debug perspective and back', async () => {
+  await page.getByRole('button', { name: 'CCS Debug' }).click()
+  await expect(page.locator('.view-title', { hasText: /^Debug$/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Variables' })).toBeVisible()
+  await expect(page.getByTitle('Resume (F8)')).toBeDisabled()
+  await page.getByRole('button', { name: 'CCS Edit' }).click()
+  await expect(page.locator('.view-title', { hasText: 'Project Explorer' })).toBeVisible()
+})
+
+test('build and debug buttons are present but disabled in this step', async () => {
+  await expect(page.getByTitle('Build Project (Ctrl+B)')).toBeDisabled()
+  await expect(page.getByTitle('Debug (F11)')).toBeDisabled()
+})
