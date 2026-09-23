@@ -288,3 +288,10 @@ describe('preferences', () => {
     expect(store.getState().compiler?.toolchain?.version).toBe('8.3.12')
   })
 })
+
+describe('bottom panel', () => {
+  it('can show the Memory Browser', () => {
+    store.getState().setBottomTab('memory')
+    expect(store.getState().bottomTab).toBe('memory')
+  })
+})

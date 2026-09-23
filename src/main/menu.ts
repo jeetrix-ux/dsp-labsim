@@ -19,6 +19,7 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
       ]
     },
     { label: 'Edit', submenu: [{ role: 'cut' }, { role: 'copy' }, { role: 'paste' }] },
+    { label: 'View', submenu: [{ label: 'Memory Browser', click: send('view.memoryBrowser') }] },
     {
       label: 'Project',
       submenu: [

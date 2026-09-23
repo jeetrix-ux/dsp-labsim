@@ -3,7 +3,7 @@ import type { BuildKind, BuildOutputLine, BuildResult, Diagnostic, CompilerInfo,
 import { basename, isTextFile } from '@shared/files'
 
 export type Perspective = 'edit' | 'debug'
-export type BottomTab = 'console' | 'problems'
+export type BottomTab = 'console' | 'problems' | 'memory'
 export type ConsoleKind = 'out' | 'info' | 'error'
 
 export interface ConsoleLine {

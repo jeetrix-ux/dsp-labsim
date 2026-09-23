@@ -143,3 +143,10 @@ table.grid td { padding: 2px 6px; border-bottom: 1px solid #f0f0f0; }
 .pref-hint { margin-top: 4px; color: var(--muted); font-size: 12px; }
 .pref-actions { display: flex; gap: 6px; margin-top: 8px; }
 .pref-actions button { padding: 3px 10px; }
+.memory-wrap { display: flex; flex-direction: column; height: 100%; }
+.memory-input { width: 280px; font-family: Consolas, 'Courier New', monospace; }
+.memory-body { flex: 1; min-height: 0; overflow: auto; }
+.memory-table { border-collapse: collapse; font-family: Consolas, 'Courier New', monospace; font-size: 12px; }
+.memory-table td { padding: 1px 10px 1px 0; white-space: nowrap; }
+.mem-addr { padding-left: 8px !important; color: #1f4f86; }
+.memory-error { padding: 8px; color: #c9302c; }

@@ -43,6 +43,7 @@ export type MenuCommand =
   | 'window.editPerspective'
   | 'window.debugPerspective'
   | 'window.preferences'
+  | 'view.memoryBrowser'
   | 'tools.graphSingleTime'
   | 'run.debug'
   | 'run.resume'

@@ -66,6 +66,7 @@ function handleMenu(cmd: MenuCommand): void {
     case 'project.rebuild': void s.build('rebuild'); break
     case 'project.clean': void s.build('clean'); break
     case 'window.preferences': s.openDialog('preferences'); break
+    case 'view.memoryBrowser': s.setBottomTab('memory'); break
     case 'window.editPerspective': s.setPerspective('edit'); break
     case 'window.debugPerspective': s.setPerspective('debug'); break
   }
