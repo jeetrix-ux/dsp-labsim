@@ -171,7 +171,7 @@ describe('parseUnit', () => {
   })
 
   it('skips a brace list assigned in a statement after one #29, as cl6x does (idft_8_m)', () => {
-    const src = 'float xr[8];\nint main(void)\n{\n    int n;\n    for (n = 0; n < 8; n++) {\n        xr[8] = {0, 0, 0};\n        xr[n] = 1;\n    }\n    return 0;\n}'
+    const src = 'float xr[8];\nint main(void)\n{\n    int n;\n    for (n = 0; n < 8; n++) {\n        xr[n] = {0, 0, 0};\n        xr[n] = 1;\n    }\n    return 0;\n}'
     expect(parse(src).codes).toEqual(['6:29'])
   })
 
