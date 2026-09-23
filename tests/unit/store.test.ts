@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { BuildKind, BuildResult, Diagnostic, FileNode, LabsimApi, MenuCommand, ProjectInfo, Toolchain } from '@shared/api'
+import type { BuildKind, BuildResult, Diagnostic, FileNode, LabsimApi, MenuCommand, NewProjectOptions, ProjectInfo, Toolchain } from '@shared/api'
+import { NEW_PROJECT_DEFAULTS } from '@shared/newProject'
 import { buildConsoleName, createAppStore, isDirty, MAIN_CONSOLE, type AppStore } from '../../src/renderer/src/store'
 
 const WS = 'C:\\ws'
@@ -15,6 +16,7 @@ type FakeApi = LabsimApi & {
   buildCalls: [string, BuildKind][]
   nextBuild: BuildResult
   toolchain: Toolchain | null
+  created: NewProjectOptions[]
 }
 
 function fakeApi(): FakeApi {
@@ -28,7 +30,15 @@ function fakeApi(): FakeApi {
     chooseSaveFile: async () => null,
     writeChosenFile: async () => {},
     openTextFile: async () => null,
-    createProject: async () => '',
+    created: [],
+    createProject: async (o: NewProjectOptions) => {
+      if (o.name === 'dup') throw new Error("Error invoking remote method 'project:create': Error: 'dup' already exists in the workspace.")
+      api.created.push(o)
+      const dir = `${WS}\\${o.name}`
+      projects.push({ name: o.name, dir, isCcsProject: false })
+      api.files[`${dir}\\main.c`] = 'int main(void)\r\n{\r\n\treturn 0;\r\n}\r\n'
+      return dir
+    },
     buildCalls: [],
     nextBuild: { ok: true, diagnostics: [], image: null },
     toolchain: { root: 'C:\\ti\\cgt', version: '8.3.12', cl6x: 'C:\\ti\\cgt\\bin\\cl6x.exe' },
@@ -230,5 +240,27 @@ describe('navigation', () => {
     await store.getState().openAt(MAIN, 9)
     expect(store.getState().activeTab).toBe(MAIN)
     expect(store.getState().reveal).toEqual({ path: MAIN, line: 9, seq: 2 })
+  })
+})
+
+describe('new project', () => {
+  it('creates the project, selects and expands it, opens main.c and closes the dialog', async () => {
+    store.getState().openDialog('newProject')
+    expect(store.getState().dialog).toBe('newProject')
+    expect(await store.getState().createProject({ name: 'lab1', ...NEW_PROJECT_DEFAULTS })).toBeNull()
+    const dir = `${WS}\\lab1`
+    expect(api.created).toEqual([{ name: 'lab1', ...NEW_PROJECT_DEFAULTS }])
+    expect(store.getState().projects.map((p) => p.name)).toContain('lab1')
+    expect(store.getState()).toMatchObject({ dialog: null, selectedProject: dir, activeTab: `${dir}\\main.c` })
+    expect(store.getState().expanded[dir]).toBe(true)
+    expect(store.getState().consoles[MAIN_CONSOLE].at(-1)?.text).toBe(`Created project lab1 in ${dir}`)
+  })
+
+  it('returns the error without the IPC prefix and keeps the dialog open', async () => {
+    store.getState().openDialog('newProject')
+    expect(await store.getState().createProject({ name: 'dup', ...NEW_PROJECT_DEFAULTS })).toBe("'dup' already exists in the workspace.")
+    expect(store.getState().dialog).toBe('newProject')
+    store.getState().closeDialog()
+    expect(store.getState().dialog).toBeNull()
   })
 })

@@ -134,3 +134,5 @@ table.grid td { padding: 2px 6px; border-bottom: 1px solid #f0f0f0; }
 .graph-host { position: relative; flex: 1; min-height: 0; background: #fff; }
 .graph-canvas { position: absolute; inset: 0; display: block; }
 .graph-error { padding: 12px; color: #c9302c; }
+.wizard-dialog { width: 560px; }
+.wizard-note { padding: 8px 12px 4px; color: var(--muted); }

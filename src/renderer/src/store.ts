@@ -1,5 +1,5 @@
 import { createStore } from 'zustand/vanilla'
-import type { BuildKind, BuildOutputLine, BuildResult, Diagnostic, FileNode, LabsimApi, ProjectInfo } from '@shared/api'
+import type { BuildKind, BuildOutputLine, BuildResult, Diagnostic, FileNode, LabsimApi, NewProjectOptions, ProjectInfo } from '@shared/api'
 import { basename, isTextFile } from '@shared/files'
 
 export type Perspective = 'edit' | 'debug'
@@ -21,6 +21,12 @@ export interface EditorTab {
 export const MAIN_CONSOLE = 'DSP LabSim'
 
 export const isDirty = (t: EditorTab): boolean => t.content !== t.savedContent
+
+export type DialogKind = 'newProject' | 'preferences'
+
+/** An IPC rejection's message without Electron's "Error invoking remote method 'x': Error: " prefix. */
+export const ipcError = (e: unknown): string =>
+  (e instanceof Error ? e.message : String(e)).replace(/^Error invoking remote method '[^']+': (Error: )?/, '')
 
 export const buildConsoleName = (projectDir: string): string => `CDT Build Console [${basename(projectDir)}]`
 
@@ -68,6 +74,11 @@ export interface AppState {
   setBottomTab(tab: BottomTab): void
   build(kind: BuildKind): Promise<BuildResult | null>
   chooseCompiler(): Promise<void>
+  dialog: DialogKind | null
+  openDialog(d: DialogKind): void
+  closeDialog(): void
+  /** File > New > CCS Project; resolves to an error to show in the dialog, or null when done. */
+  createProject(o: NewProjectOptions): Promise<string | null>
   openAt(path: string, line: number): Promise<void>
   appendBuildOutput(line: BuildOutputLine): void
 }
@@ -85,6 +96,7 @@ export function createAppStore(api: LabsimApi) {
     consoles: { [MAIN_CONSOLE]: [] },
     activeConsole: MAIN_CONSOLE,
     bottomTab: 'console',
+    dialog: null,
     building: false,
     diagnostics: [],
     reveal: null,
@@ -241,6 +253,29 @@ export function createAppStore(api: LabsimApi) {
       } catch (e) {
         get().print(MAIN_CONSOLE, String(e), 'error')
       }
+    },
+
+    openDialog(dialog) {
+      set({ dialog })
+    },
+
+    closeDialog() {
+      set({ dialog: null })
+    },
+
+    async createProject(o) {
+      let dir: string
+      try {
+        dir = await api.createProject(o)
+      } catch (e) {
+        return ipcError(e)
+      }
+      await get().refresh()
+      set({ selectedProject: dir, dialog: null })
+      if (!get().expanded[dir]) await get().toggleExpand(dir)
+      await get().openFile(`${dir}\\main.c`)
+      get().print(MAIN_CONSOLE, `Created project ${o.name} in ${dir}`, 'info')
+      return null
     },
 
     async openAt(path, line) {

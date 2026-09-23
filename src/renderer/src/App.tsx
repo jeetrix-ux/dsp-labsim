@@ -8,6 +8,7 @@ import { DebugView, VariablesPanel } from './components/DebugViews'
 import { EditorArea, getCursorLine } from './components/EditorArea'
 import { GraphPanel } from './components/GraphPanel'
 import { GraphPropertiesDialog } from './components/GraphPropertiesDialog'
+import { NewProjectDialog } from './components/NewProjectDialog'
 import { ProjectExplorer } from './components/ProjectExplorer'
 import { Splitter } from './components/Splitter'
 import { Toolbar } from './components/Toolbar'
@@ -55,6 +56,7 @@ function handleMenu(cmd: MenuCommand): void {
     case 'run.stepReturn': void d.stepReturn(); break
     case 'run.toLine': runToCursor(); break
     case 'tools.graphSingleTime': graphStore.getState().openNew(); break
+    case 'file.newProject': s.openDialog('newProject'); break
     case 'file.save': void s.saveTab(); break
     case 'file.saveAll': void s.saveAll(); break
     case 'file.refresh': void s.refresh(); break
@@ -145,6 +147,7 @@ export function App(): JSX.Element {
         )}
       </div>
       <GraphPropertiesDialog />
+      <NewProjectDialog />
     </div>
   )
 }
