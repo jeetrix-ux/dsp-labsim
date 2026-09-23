@@ -3,7 +3,7 @@ import { compileArgs, linkArgs, renderCommand, toSpawnArgs } from '../../../src/
 import { defaultConfig } from '../../../src/main/build/projectConfig'
 
 const CGT = 'C:\\ti\\ccs1281\\ccs\\tools\\compiler\\ti-cgt-c6000_8.3.12'
-const CL6X = 'C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-c6000_8.3.12/bin/cl6x'
+const CL6X = 'C:\\ti\\ccs1281\\ccs\\tools\\compiler\\ti-cgt-c6000_8.3.12\\bin\\cl6x.exe'
 const cfg = defaultConfig('exp11', 'C:\\Users\\jeetm\\workspace_v12\\exp11', CGT)
 
 describe('compileArgs', () => {

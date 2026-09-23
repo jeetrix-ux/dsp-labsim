@@ -1,12 +1,15 @@
 import Editor, { type OnMount } from '@monaco-editor/react'
 import * as monaco from 'monaco-editor'
-import { useEffect, useRef, type JSX } from 'react'
+import { useCallback, useEffect, useRef, type JSX } from 'react'
+import type { editor as MonacoEditor } from 'monaco-editor'
 import { languageFor } from '@shared/files'
 import { appStore, useApp } from '../appStore'
 import { isDirty } from '../store'
 
 /** Monaco model URI for a Windows path. `Uri.parse('C:\\x')` would treat `c:` as a scheme. */
 export const toModelPath = (p: string): string => 'file:///' + p.replace(/\\/g, '/')
+
+const samePath = (a: string, b: string): boolean => a.replace(/\//g, '\\').toLowerCase() === b.replace(/\//g, '\\').toLowerCase()
 
 export async function requestClose(path: string): Promise<void> {
   const s = appStore.getState()
@@ -45,8 +48,48 @@ export function EditorArea(): JSX.Element {
     openPaths.current = now
   }, [tabs])
 
+  const diagnostics = useApp((s) => s.diagnostics)
+  const reveal = useApp((s) => s.reveal)
+  const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null)
+  const revealedSeq = useRef(0)
+
+  const applyMarkers = useCallback(() => {
+    for (const t of appStore.getState().tabs) {
+      const model = monaco.editor.getModel(monaco.Uri.parse(toModelPath(t.path)))
+      if (!model) continue
+      const markers = diagnostics
+        .filter((d) => d.file && d.line && samePath(d.file, t.path) && d.line <= model.getLineCount())
+        .map((d) => ({
+          severity:
+            d.severity === 'error' ? monaco.MarkerSeverity.Error : d.severity === 'warning' ? monaco.MarkerSeverity.Warning : monaco.MarkerSeverity.Info,
+          message: `#${d.code} ${d.message}`,
+          startLineNumber: d.line as number,
+          endLineNumber: d.line as number,
+          startColumn: model.getLineFirstNonWhitespaceColumn(d.line as number) || 1,
+          endColumn: model.getLineMaxColumn(d.line as number)
+        }))
+      monaco.editor.setModelMarkers(model, 'cl6x', markers)
+    }
+  }, [diagnostics])
+
+  const applyReveal = useCallback(() => {
+    const ed = editorRef.current
+    const r = appStore.getState().reveal
+    if (!ed || !r || r.seq === revealedSeq.current || !samePath(r.path, appStore.getState().activeTab ?? '')) return
+    revealedSeq.current = r.seq
+    ed.revealLineInCenter(r.line)
+    ed.setPosition({ lineNumber: r.line, column: 1 })
+    ed.focus()
+  }, [])
+
+  useEffect(applyMarkers, [applyMarkers, tabs, active])
+  useEffect(applyReveal, [applyReveal, reveal, active])
+
   const onMount: OnMount = (editor, m) => {
+    editorRef.current = editor
     editor.addCommand(m.KeyMod.CtrlCmd | m.KeyCode.KeyS, () => void appStore.getState().saveTab())
+    applyMarkers()
+    applyReveal()
   }
 
   return (

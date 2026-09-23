@@ -5,7 +5,8 @@ export type Arg = string | { flag: string; path: string }
 
 export function renderCommand(exe: string, args: Arg[]): string {
   const shown = args.map((a) => (typeof a === 'string' ? a : `${a.flag}"${a.path}"`))
-  return [`"${exe.replace(/\\/g, '/')}"`, ...shown].join(' ')
+  // CCS prints the compiler without its .exe suffix.
+  return [`"${exe.replace(/\\/g, '/').replace(/\.exe$/i, '')}"`, ...shown].join(' ')
 }
 
 export function toSpawnArgs(args: Arg[]): string[] {

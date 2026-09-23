@@ -65,8 +65,8 @@ test('switches to the CCS Debug perspective and back', async () => {
   await expect(page.locator('.view-title', { hasText: 'Project Explorer' })).toBeVisible()
 })
 
-test('build and debug buttons are present but disabled in this step', async () => {
-  await expect(page.getByTitle('Build Project (Ctrl+B)')).toBeDisabled()
+test('build is enabled; debug stays disabled until the debugger exists', async () => {
+  await expect(page.getByTitle('Build Project (Ctrl+B)')).toBeEnabled()
   await expect(page.getByTitle('Debug (F11)')).toBeDisabled()
 })
 

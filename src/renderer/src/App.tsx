@@ -17,6 +17,10 @@ function handleMenu(cmd: MenuCommand): void {
     case 'file.saveAll': void s.saveAll(); break
     case 'file.refresh': void s.refresh(); break
     case 'file.switchWorkspace': void s.switchWorkspace(); break
+    case 'project.build': void s.build('build'); break
+    case 'project.rebuild': void s.build('rebuild'); break
+    case 'project.clean': void s.build('clean'); break
+    case 'window.compilerLocation': void s.chooseCompiler(); break
     case 'window.editPerspective': s.setPerspective('edit'); break
     case 'window.debugPerspective': s.setPerspective('debug'); break
   }
@@ -34,7 +38,12 @@ export function App(): JSX.Element {
 
   useEffect(() => {
     void appStore.getState().init()
-    return window.labsim.onMenu(handleMenu)
+    const offMenu = window.labsim.onMenu(handleMenu)
+    const offBuild = window.labsim.onBuildOutput((line) => appStore.getState().appendBuildOutput(line))
+    return () => {
+      offMenu()
+      offBuild()
+    }
   }, [])
 
   useEffect(() => {
