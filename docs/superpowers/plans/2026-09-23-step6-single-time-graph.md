@@ -13,7 +13,7 @@
 - **Reading data.** A graph resolves its address when the target halts, then reads memory with `readMemory`. The debugger answers that even while the program runs (Step 5), which makes Continuous Refresh work on the running target.
 - **Graph model.** Decoding, the display buffer, axes, ticks and export formats are pure functions in `src/renderer/src/graph/model.ts`, unit-tested in Node.
 - **Store.** `graphStore` owns the graphs, their refresh timers and the properties dialog. It remembers each project's last-used properties.
-- **Views.** Graph windows are tabs in the editor area (`graph:<id>`), drawn on a canvas by `graph/plot.ts`.
+- **Views.** In CCS Debug, graph windows are tabs in a graph panel beside the editor, drawn on a canvas by `graph/plot.ts`.
 
 **Tech Stack:** React 19, zustand 5, Canvas 2D, Electron dialogs (save/open) over IPC, vitest 4.1, Playwright for Electron. There are no new dependencies.
 
@@ -60,8 +60,9 @@ Behaviour:
 | `src/renderer/src/graph/plot.ts` | Draws a graph on a canvas and maps the cursor to x/y |
 | `src/renderer/src/graphStore.ts` | Graphs, the properties dialog, refresh on halt, Continuous Refresh, per-project settings, save/export |
 | `src/main/ipc.ts`, `src/preload/index.ts`, `src/shared/api.ts`, `src/main/menu.ts` | `saveFile`/`openTextFile` dialogs; Tools → Graph → Single Time |
-| `src/renderer/src/components/GraphView.tsx`, `GraphPropertiesDialog.tsx` | The graph tab and the dialog |
-| `src/renderer/src/store.ts`, `components/EditorArea.tsx`, `App.tsx`, `appStore.ts`, `styles.css` | Graph tabs in the editor area, the menu command, refresh on halt |
+| `src/renderer/src/components/GraphPanel.tsx`, `GraphPropertiesDialog.tsx` | The graph panel (tabs, toolbar, canvas) and the dialog |
+| `src/main/chosenFiles.ts` | Only paths picked in a save dialog may be written |
+| `App.tsx`, `appStore.ts`, `styles.css` | Graph panel beside the editor in CCS Debug, the menu command |
 | `tests/e2e/graph.spec.ts` | Open a graph on `y`, run, check the canvas has a trace, invalid address, save CSV |
 
 ---
