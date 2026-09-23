@@ -1,5 +1,5 @@
 import { test, expect, _electron as electron, type ElectronApplication, type Page } from '@playwright/test'
-import { mkdtempSync, mkdirSync, writeFileSync } from 'fs'
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -68,4 +68,21 @@ test('switches to the CCS Debug perspective and back', async () => {
 test('build and debug buttons are present but disabled in this step', async () => {
   await expect(page.getByTitle('Build Project (Ctrl+B)')).toBeDisabled()
   await expect(page.getByTitle('Debug (F11)')).toBeDisabled()
+})
+
+test('opens a file in the editor, edits and saves it', async () => {
+  await page.locator('.tree-row', { hasText: 'demo' }).locator('.twisty').click()
+  await page.locator('.tree-row', { hasText: 'main.c' }).dblclick()
+  const lines = page.locator('.monaco-editor .view-lines')
+  await expect(lines).toContainText('int main(void)')
+  await expect(page).toHaveTitle(/demo\/main\.c - DSP LabSim/)
+  await lines.click()
+  await page.keyboard.press('Control+End')
+  await page.keyboard.type('// edited')
+  await expect(page.locator('.tab.active')).toContainText('*main.c')
+  await page.getByTitle('Save (Ctrl+S)').click()
+  await expect(page.locator('.tab.active')).not.toContainText('*')
+  const onDisk = readFileSync(join(ws, 'demo', 'main.c'), 'utf8')
+  expect(onDisk).toContain('// edited')
+  expect(onDisk).toContain('\r\n')
 })

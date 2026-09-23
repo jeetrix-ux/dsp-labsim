@@ -10,7 +10,8 @@
     "start": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "test": "vitest run",
-    "test:e2e": "electron-vite build && playwright test"
+    "test:e2e": "electron-vite build && playwright test",
+    "postinstall": "node node_modules/electron/install.js"
   },
   "devDependencies": {
     "@playwright/test": "1.63",
