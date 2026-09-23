@@ -2,7 +2,8 @@ import { readFileSync } from 'fs'
 import * as path from 'path'
 import { expect } from 'vitest'
 import type { ProgramImage } from '@shared/program'
-import type { RunIO } from '../../../../src/interp/exec/machine'
+import type { Machine, RunIO } from '../../../../src/interp/exec/machine'
+import { captureIO, loadProgram, runProgram, type RunResult } from '../../../../src/interp/run'
 import { compileUnit, linkProgram, type Program } from '../../../../src/interp/frontend/program'
 import { layoutProgram } from '../../../../src/main/build/fallbackImage'
 import { parseLinkerCommandFile } from '../../../../src/main/build/linkerCmd'
@@ -35,4 +36,24 @@ export function build(source: string, others: Record<string, string> = {}, opts:
   const layout = layoutProgram(link.program!, CMD, { heapSize: opts.heap ?? 0x800, stackSize: opts.stack ?? 0x800, outFile: 'main.out' })
   expect(layout.error).toBeNull()
   return { program: link.program!, image: layout.image! }
+}
+
+export interface Ran {
+  result: RunResult
+  stdout: string
+  stderr: string
+  notes: string[]
+  m: Machine
+  image: ProgramImage
+  /** Address of a global in the image. */
+  g(name: string): number
+}
+
+/** Builds and runs a program; `input` lines feed stdin. */
+export function runC(source: string, opts: BuildOptions & { others?: Record<string, string>; input?: string[]; maxSteps?: number } = {}): Ran {
+  const { program, image } = build(source, opts.others ?? {}, opts)
+  const cap = captureIO(opts.input ?? [])
+  const m = loadProgram(program, image, cap.io, { maxSteps: opts.maxSteps ?? 50_000_000 })
+  const result = runProgram(m)
+  return { result, stdout: cap.stdout(), stderr: cap.stderr(), notes: cap.notes, m, image, g: (name) => image.globals[name].addr }
 }
