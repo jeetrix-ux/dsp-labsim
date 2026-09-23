@@ -1,0 +1,196 @@
+import { createStore } from 'zustand/vanilla'
+import type { FileNode, LabsimApi, ProjectInfo } from '@shared/api'
+import { basename, isTextFile } from '@shared/files'
+
+export type Perspective = 'edit' | 'debug'
+export type BottomTab = 'console' | 'problems'
+export type ConsoleKind = 'out' | 'info' | 'error'
+
+export interface ConsoleLine {
+  text: string
+  kind: ConsoleKind
+}
+
+export interface EditorTab {
+  path: string
+  title: string
+  content: string
+  savedContent: string
+}
+
+export const MAIN_CONSOLE = 'DSP LabSim'
+
+export const isDirty = (t: EditorTab): boolean => t.content !== t.savedContent
+
+export interface AppState {
+  workspace: string
+  projects: ProjectInfo[]
+  /** Project dir → its file tree, loaded on first expand. */
+  trees: Record<string, FileNode[]>
+  /** Project or folder path → expanded in the explorer. */
+  expanded: Record<string, boolean>
+  selectedProject: string | null
+  tabs: EditorTab[]
+  activeTab: string | null
+  perspective: Perspective
+  consoles: Record<string, ConsoleLine[]>
+  activeConsole: string
+  bottomTab: BottomTab
+
+  init(): Promise<void>
+  refresh(): Promise<void>
+  switchWorkspace(): Promise<void>
+  toggleExpand(path: string): Promise<void>
+  selectProject(dir: string): void
+  openFile(path: string): Promise<void>
+  closeTab(path: string): void
+  setActiveTab(path: string): void
+  editTab(path: string, content: string): void
+  /** Saves the given tab, or the active one; a no-op when it is not dirty. */
+  saveTab(path?: string): Promise<void>
+  saveAll(): Promise<void>
+  setPerspective(p: Perspective): void
+  print(consoleName: string, text: string, kind?: ConsoleKind): void
+  clearConsole(consoleName: string): void
+  setActiveConsole(consoleName: string): void
+  setBottomTab(tab: BottomTab): void
+}
+
+export function createAppStore(api: LabsimApi) {
+  return createStore<AppState>()((set, get) => ({
+    workspace: '',
+    projects: [],
+    trees: {},
+    expanded: {},
+    selectedProject: null,
+    tabs: [],
+    activeTab: null,
+    perspective: 'edit',
+    consoles: { [MAIN_CONSOLE]: [] },
+    activeConsole: MAIN_CONSOLE,
+    bottomTab: 'console',
+
+    async init() {
+      const workspace = await api.getWorkspace()
+      const projects = await api.listProjects()
+      set({ workspace, projects, trees: {}, expanded: {}, selectedProject: projects[0]?.dir ?? null })
+      const n = projects.length
+      get().print(MAIN_CONSOLE, `Workspace: ${workspace} (${n} project${n === 1 ? '' : 's'})`, 'info')
+    },
+
+    async refresh() {
+      const projects = await api.listProjects()
+      const trees: Record<string, FileNode[]> = {}
+      for (const dir of Object.keys(get().trees)) {
+        if (projects.some((p) => p.dir === dir)) trees[dir] = await api.readTree(dir)
+      }
+      set({ projects, trees })
+    },
+
+    async switchWorkspace() {
+      if (get().tabs.some(isDirty)) {
+        get().print(MAIN_CONSOLE, 'Save or close modified files before switching workspace.', 'error')
+        return
+      }
+      const picked = await api.switchWorkspace()
+      if (!picked) return
+      set({ tabs: [], activeTab: null })
+      await get().init()
+    },
+
+    async toggleExpand(path) {
+      const open = !get().expanded[path]
+      const isProject = get().projects.some((p) => p.dir === path)
+      if (open && isProject && !get().trees[path]) {
+        const tree = await api.readTree(path)
+        set((s) => ({ trees: { ...s.trees, [path]: tree } }))
+      }
+      set((s) => ({ expanded: { ...s.expanded, [path]: open } }))
+    },
+
+    selectProject(dir) {
+      set({ selectedProject: dir })
+    },
+
+    async openFile(path) {
+      if (get().tabs.some((t) => t.path === path)) {
+        set({ activeTab: path })
+        return
+      }
+      if (!isTextFile(path)) {
+        get().print(MAIN_CONSOLE, `${basename(path)} is not a text file and cannot be opened in the editor.`, 'info')
+        return
+      }
+      let content: string
+      try {
+        content = await api.readFile(path)
+      } catch (e) {
+        get().print(MAIN_CONSOLE, `Could not open ${path}: ${String(e)}`, 'error')
+        return
+      }
+      set((s) => ({
+        tabs: [...s.tabs, { path, title: basename(path), content, savedContent: content }],
+        activeTab: path
+      }))
+    },
+
+    closeTab(path) {
+      set((s) => {
+        const i = s.tabs.findIndex((t) => t.path === path)
+        if (i < 0) return {}
+        const tabs = s.tabs.filter((t) => t.path !== path)
+        const activeTab = s.activeTab !== path ? s.activeTab : ((tabs[i] ?? tabs[i - 1])?.path ?? null)
+        return { tabs, activeTab }
+      })
+    },
+
+    setActiveTab(path) {
+      set({ activeTab: path })
+    },
+
+    editTab(path, content) {
+      set((s) => ({ tabs: s.tabs.map((t) => (t.path === path ? { ...t, content } : t)) }))
+    },
+
+    async saveTab(path) {
+      const target = path ?? get().activeTab
+      const tab = get().tabs.find((t) => t.path === target)
+      if (!tab || !isDirty(tab)) return
+      const content = tab.content
+      try {
+        await api.writeFile(tab.path, content)
+      } catch (e) {
+        get().print(MAIN_CONSOLE, `Could not save ${tab.path}: ${String(e)}`, 'error')
+        return
+      }
+      set((s) => ({ tabs: s.tabs.map((t) => (t.path === tab.path ? { ...t, savedContent: content } : t)) }))
+    },
+
+    async saveAll() {
+      for (const t of get().tabs.filter(isDirty)) await get().saveTab(t.path)
+    },
+
+    setPerspective(perspective) {
+      set({ perspective })
+    },
+
+    print(consoleName, text, kind = 'out') {
+      const lines = text.split(/\r?\n/).map((t) => ({ text: t, kind }))
+      set((s) => ({ consoles: { ...s.consoles, [consoleName]: [...(s.consoles[consoleName] ?? []), ...lines] } }))
+    },
+
+    clearConsole(consoleName) {
+      set((s) => ({ consoles: { ...s.consoles, [consoleName]: [] } }))
+    },
+
+    setActiveConsole(consoleName) {
+      set({ activeConsole: consoleName })
+    },
+
+    setBottomTab(bottomTab) {
+      set({ bottomTab })
+    }
+  }))
+}
+
+export type AppStore = ReturnType<typeof createAppStore>
