@@ -212,6 +212,28 @@ perspective switches to **CCS Debug**.
 - A **Memory Browser** view (address or symbol, format 32-bit float / hex / int) is a
   late-stage addition that reuses `readMemory`.
 
+**How it is built.**
+- Each session is a Node worker thread in the main process. The worker compiles the project with LabSim's
+  front-end and loads it at the addresses of the last successful build. It then runs the executor under a
+  `Debugger` (`src/interp/debug`).
+- While stopped, the worker waits in `Atomics.wait` on a SharedArrayBuffer command slot and still answers
+  requests (frames, variables, expressions, memory).
+- While running, the debugger checks the slot every 20 000 statements, or every statement when a step,
+  breakpoint or Run to Line is armed. So Suspend, breakpoint changes and memory reads (Step 6's continuous
+  refresh) work without stopping the program.
+
+**Details that differ from CCS or that CCS leaves open.**
+- A build with errors does not launch: the build console says "Errors exist in project 'X'. Fix them before
+  debugging." There is no stale `.out` to fall back on, because LabSim runs the sources.
+- The entry stop is the first statement of `main` that has code.
+- Step Over and Step Into work line by line, so a loop written on one line runs to its end in one step.
+- The Expressions view does not call functions.
+- Values follow CCS's layout:
+  - floats show their shortest round-trip digits;
+  - chars show their character;
+  - pointers, arrays and structs show their address, and char arrays add their string.
+- Restart reloads the same build (static initialisers run again). Reload Program builds first.
+
 ## Single Time graph
 
 **Tools → Graph → Single Time** opens the *Graph Properties* dialog with CCS's properties
