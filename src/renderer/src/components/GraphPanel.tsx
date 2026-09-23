@@ -66,8 +66,6 @@ function GraphView({ graph }: { graph: Graph }): JSX.Element {
         <span className="tb-sep" />
         <GBtn title="Save Data" label="Save Data" onClick={() => act(st.saveData(graph.id))} />
         <GBtn title="Export Image" label="Export Image" onClick={() => canvasRef.current && act(st.exportImage(graph.id, canvasRef.current.toDataURL('image/png')))} />
-        <span className="tb-spacer" />
-        <span className="graph-readout">{cursor ?? ''}</span>
       </div>
       <div ref={hostRef} className="graph-host">
         {graph.error ? (
@@ -75,6 +73,7 @@ function GraphView({ graph }: { graph: Graph }): JSX.Element {
         ) : (
           <canvas ref={canvasRef} className="graph-canvas" style={{ width: size.w, height: size.h }} onMouseMove={onMove} onMouseLeave={() => setCursor(null)} />
         )}
+        {cursor && !graph.error && <div className="graph-readout">{cursor}</div>}
       </div>
     </div>
   )

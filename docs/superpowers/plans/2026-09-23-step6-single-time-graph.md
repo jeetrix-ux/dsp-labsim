@@ -1984,8 +1984,6 @@ function GraphView({ graph }: { graph: Graph }): JSX.Element {
         <span className="tb-sep" />
         <GBtn title="Save Data" label="Save Data" onClick={() => act(st.saveData(graph.id))} />
         <GBtn title="Export Image" label="Export Image" onClick={() => canvasRef.current && act(st.exportImage(graph.id, canvasRef.current.toDataURL('image/png')))} />
-        <span className="tb-spacer" />
-        <span className="graph-readout">{cursor ?? ''}</span>
       </div>
       <div ref={hostRef} className="graph-host">
         {graph.error ? (
@@ -1993,6 +1991,7 @@ function GraphView({ graph }: { graph: Graph }): JSX.Element {
         ) : (
           <canvas ref={canvasRef} className="graph-canvas" style={{ width: size.w, height: size.h }} onMouseMove={onMove} onMouseLeave={() => setCursor(null)} />
         )}
+        {cursor && !graph.error && <div className="graph-readout">{cursor}</div>}
       </div>
     </div>
   )
@@ -2070,10 +2069,10 @@ Append to `src/renderer/src/styles.css`:
 .graph-body { overflow: hidden; }
 .graph-view { display: flex; flex-direction: column; height: 100%; }
 .graph-toolbar { display: flex; align-items: center; gap: 2px; padding: 2px 4px; border-bottom: 1px solid var(--border); background: var(--header); }
-.g-btn { padding: 1px 6px; border: 1px solid transparent; border-radius: 3px; background: none; cursor: pointer; font: inherit; }
+.g-btn { flex: none; white-space: nowrap; padding: 1px 6px; border: 1px solid transparent; border-radius: 3px; background: none; cursor: pointer; font: inherit; }
 .g-btn:hover { border-color: var(--border); background: #fff; }
 .g-btn.pressed { border-color: var(--accent); background: var(--select); }
-.graph-readout { font-family: Consolas, 'Courier New', monospace; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.graph-readout { position: absolute; top: 4px; right: 8px; padding: 1px 6px; background: rgba(255, 255, 255, 0.85); border: 1px solid var(--border); border-radius: 3px; font-family: Consolas, 'Courier New', monospace; font-size: 12px; color: var(--text); white-space: nowrap; pointer-events: none; }
 .graph-host { position: relative; flex: 1; min-height: 0; background: #fff; }
 .graph-canvas { position: absolute; inset: 0; display: block; }
 .graph-error { padding: 12px; color: #c9302c; }
@@ -2174,7 +2173,7 @@ async function openGraph(fields: Record<string, string>, selects: Record<string,
 test('graphs y at every halt and saves the data as CSV', async () => {
   await debugUntilMain('fill')
   await openGraph({ 'Start Address': 'y', 'Acquisition Buffer Size': '4', 'Display Data Size': '4' }, { 'Dsp Data Type': '32 bit floating point' })
-  await expect(page.locator('.graph-tab')).toHaveText(['Single Time - 1'])
+  await expect(page.locator('.graph-tab > span')).toHaveText(['Single Time - 1'])
   await expect(canvas()).toHaveAttribute('data-points', '4')
 
   await page.getByTitle('Resume (F8)').click()
