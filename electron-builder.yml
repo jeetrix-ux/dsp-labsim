@@ -1,0 +1,21 @@
+appId: app.labsim.dsp
+productName: DSP LabSim
+directories:
+  output: dist
+# electron-vite bundles the main, preload, worker and renderer code into out/; no node_modules are needed at runtime.
+files:
+  - out/**/*
+  - package.json
+  - "!node_modules/**/*"
+extraResources:
+  - from: resources
+    to: .
+    filter:
+      - C6748.cmd
+asar: true
+npmRebuild: false
+electronDist: node_modules/electron/dist
+win:
+  target: portable
+portable:
+  artifactName: DSP-LabSim-${version}-portable.exe
