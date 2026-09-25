@@ -97,13 +97,14 @@ export function drawGraph(ctx: Ctx2D, { buffer, props, view, width, height }: Pl
   let drawn = 0
   let last = null as [number, number] | null
   if (props.dataPlotStyle === 'Bar') {
-    const w = Math.max(1, Math.abs(toPx(r, view, xValue(1, props), 0)[0] - toPx(r, view, xValue(0, props), 0)[0]) * 0.6)
+    // A thin stem per sample, as a discrete-value plot shows x[n].
+    const w = 2
     const base = toPx(r, view, 0, dc ? props.dcValue : Math.min(Math.max(0, view.y0), view.y1))[1]
     buffer.forEach((v, i) => {
       const y = plotValue(v, props)
       if (!Number.isFinite(y)) return
       const [px, py] = toPx(r, view, xValue(i, props), y)
-      ctx.fillRect(px - w / 2, Math.min(py, base), w, Math.max(1, Math.abs(base - py)))
+      ctx.fillRect(Math.round(px) - w / 2, Math.min(py, base), w, Math.max(1, Math.abs(base - py)))
       drawn++
     })
   } else {
