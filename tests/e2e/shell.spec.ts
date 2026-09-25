@@ -32,7 +32,8 @@ test('exposes the workspace API to the renderer', async () => {
     const src = await window.labsim.readFile(tree[0].path)
     let escaped = 'no error'
     try {
-      await window.labsim.readFile(projects[0].dir + '\\..\\..\\outside.c')
+      const sep = projects[0].dir.includes('\\') ? '\\' : '/'
+      await window.labsim.readFile([projects[0].dir, '..', '..', 'outside.c'].join(sep))
     } catch (e) {
       escaped = String(e)
     }
