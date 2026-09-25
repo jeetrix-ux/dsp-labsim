@@ -13,8 +13,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "test": "vitest run",
     "test:e2e": "electron-vite build && playwright test",
-    "dist": "electron-vite build && electron-builder --win portable",
-    "dist:dir": "electron-vite build && electron-builder --win dir",
+    "dist": "electron-vite build && electron-builder --publish never",
+    "dist:dir": "electron-vite build && electron-builder --dir --publish never",
+    "release": "electron-vite build && electron-builder --publish always",
     "labsim": "vite build -c vite.cli.config.ts --logLevel warn && node out/cli/labsim.cjs",
     "postinstall": "node node_modules/electron/install.js"
   },
