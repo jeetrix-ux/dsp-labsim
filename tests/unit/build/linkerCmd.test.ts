@@ -4,7 +4,7 @@ import { join } from 'path'
 import { parseLinkerCommandFile } from '../../../src/main/build/linkerCmd'
 
 describe('parseLinkerCommandFile', () => {
-  it('reads the MEMORY and SECTIONS of the CCS C6748.cmd template', () => {
+  it('reads the MEMORY and SECTIONS of the C6748.cmd template', () => {
     const cmd = parseLinkerCommandFile(readFileSync(join(__dirname, '../../fixtures/ccs/C6748.cmd'), 'utf8'))
     expect(cmd.memory).toHaveLength(15)
     expect(cmd.memory[0]).toEqual({ name: 'DSPL2ROM', origin: 0x00700000, length: 0x00100000, attr: 'RWIX' })

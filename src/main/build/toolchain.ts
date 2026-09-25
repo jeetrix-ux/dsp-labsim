@@ -32,22 +32,33 @@ async function subdirs(dir: string): Promise<string[]> {
   }
 }
 
+/** The compiler driver's file name on this OS. */
+export const CL6X = process.platform === 'win32' ? 'cl6x.exe' : 'cl6x'
+
+/** Where TI installs CCS and the code generation tools on this OS. */
+export function tiRoots(): string[] {
+  if (process.platform === 'win32') return ['C:\\ti']
+  return ['/Applications/ti', path.join(process.env.HOME ?? '', 'ti')]
+}
+
 export async function toolchainAt(root: string): Promise<Toolchain | null> {
-  const cl6x = path.join(root, 'bin', 'cl6x.exe')
+  const cl6x = path.join(root, 'bin', CL6X)
   if (!(await exists(cl6x))) return null
   return { root, version: CGT_DIR.exec(path.basename(root))?.[1] ?? 'unknown', cl6x }
 }
 
-/** The override when it is a valid CGT root; otherwise the newest C6000 CGT under <tiRoot> or <tiRoot>/ccs*\/ccs/tools/compiler. */
-export async function findToolchain(override?: string, tiRoot = 'C:\\ti'): Promise<Toolchain | null> {
+/** The override when it is a valid CGT root; otherwise the newest C6000 CGT under a TI root or <root>/ccs*\/ccs/tools/compiler. */
+export async function findToolchain(override?: string, roots: string | string[] = tiRoots()): Promise<Toolchain | null> {
   if (override) return toolchainAt(override)
   const candidates: string[] = []
-  for (const d of await subdirs(tiRoot)) {
-    const name = path.basename(d)
-    if (CGT_DIR.test(name)) candidates.push(d)
-    if (name.startsWith('ccs')) {
-      for (const c of await subdirs(path.join(d, 'ccs', 'tools', 'compiler'))) {
-        if (CGT_DIR.test(path.basename(c))) candidates.push(c)
+  for (const tiRoot of typeof roots === 'string' ? [roots] : roots) {
+    for (const d of await subdirs(tiRoot)) {
+      const name = path.basename(d)
+      if (CGT_DIR.test(name)) candidates.push(d)
+      if (name.startsWith('ccs')) {
+        for (const c of await subdirs(path.join(d, 'ccs', 'tools', 'compiler'))) {
+          if (CGT_DIR.test(path.basename(c))) candidates.push(c)
+        }
       }
     }
   }

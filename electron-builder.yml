@@ -2,6 +2,7 @@ appId: app.labsim.dsp
 productName: DSP LabSim
 directories:
   output: dist
+  buildResources: build
 # electron-vite bundles the main, preload, worker and renderer code into out/; no node_modules are needed at runtime.
 files:
   - out/**/*
@@ -14,8 +15,30 @@ extraResources:
       - C6748.cmd
 asar: true
 npmRebuild: false
-electronDist: node_modules/electron/dist
+publish:
+  provider: github
+  owner: jeetrix-ux
+  repo: dsp-labsim
+  releaseType: draft
 win:
-  target: portable
+  target:
+    - nsis
+    - portable
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  artifactName: DSP-LabSim-Setup-${version}.${ext}
 portable:
-  artifactName: DSP-LabSim-${version}-portable.exe
+  artifactName: DSP-LabSim-${version}-portable.${ext}
+mac:
+  category: public.app-category.education
+  target:
+    - target: dmg
+      arch: universal
+    - target: zip
+      arch: universal
+  # No Apple Developer certificate: sign ad hoc so the Apple Silicon build launches.
+  identity: "-"
+  hardenedRuntime: false
+dmg:
+  artifactName: DSP-LabSim-${version}-universal.${ext}

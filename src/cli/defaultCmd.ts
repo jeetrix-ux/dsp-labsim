@@ -1,4 +1,4 @@
-/** MEMORY and SECTIONS of CCS's C6748.cmd template (ccs_base/c6000/include), for programs without a .cmd file. */
+/** MEMORY and SECTIONS of LabSim's C6748.cmd (resources/), for programs without a .cmd file. */
 export const DEFAULT_CMD = `MEMORY
 {
     DSPL2ROM     o = 0x00700000  l = 0x00100000

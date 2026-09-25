@@ -1,7 +1,7 @@
 import { createStore } from 'zustand/vanilla'
 import type { LabsimApi } from '@shared/api'
 import type { DebugCommand, DebugEvent, FrameInfo, NumberFormat, StopReason, VarNode } from '@shared/debug'
-import { basename } from '@shared/files'
+import { basename, samePath } from '@shared/files'
 import { buildConsoleName, type AppStore } from './store'
 
 export type SessionStatus = 'idle' | 'starting' | 'running' | 'suspended' | 'exited' | 'halted'
@@ -16,7 +16,7 @@ export interface Breakpoint {
 
 export const CIO_PREFIX = '[C674X_0] '
 export const cioConsoleName = (projectDir: string): string => `${basename(projectDir)}:CIO`
-export const samePath = (a: string, b: string): boolean => a.replace(/\//g, '\\').toLowerCase() === b.replace(/\//g, '\\').toLowerCase()
+export { samePath }
 
 export interface DebugState {
   status: SessionStatus

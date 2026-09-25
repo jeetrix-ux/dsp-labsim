@@ -1,11 +1,20 @@
 import { test, expect, _electron as electron } from '@playwright/test'
-import { existsSync, mkdtempSync, readFileSync } from 'fs'
+import { existsSync, mkdtempSync, readdirSync, readFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-const EXE = join(__dirname, '../../dist/win-unpacked/DSP LabSim.exe')
+const DIST = join(__dirname, '../../dist')
 
-test.skip(!existsSync(EXE), 'Run `npm run dist:dir` first to test the packaged app.')
+/** The unpacked app `npm run dist:dir` made: dist/win-unpacked on Windows, dist/mac*\/DSP LabSim.app on macOS. */
+function packagedApp(): string {
+  if (process.platform === 'win32') return join(DIST, 'win-unpacked', 'DSP LabSim.exe')
+  const dirs = existsSync(DIST) ? readdirSync(DIST).filter((d) => d.startsWith('mac')) : []
+  return dirs.map((d) => join(DIST, d, 'DSP LabSim.app', 'Contents', 'MacOS', 'DSP LabSim')).find(existsSync) ?? ''
+}
+
+const EXE = packagedApp()
+
+test.skip(!EXE || !existsSync(EXE), 'Run `npm run dist:dir` first to test the packaged app.')
 
 test('the packaged app creates a project from its bundled C6748.cmd and debugs it', async () => {
   const ws = mkdtempSync(join(tmpdir(), 'labsim-pkg-'))

@@ -1,24 +1,49 @@
 import { Menu, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import type { MenuCommand } from '@shared/api'
 
-export function buildMenu(getWindow: () => BrowserWindow | null): void {
-  const send = (cmd: MenuCommand) => (): void => getWindow()?.webContents.send('menu', cmd)
-  const template: MenuItemConstructorOptions[] = [
+type Send = (cmd: MenuCommand) => () => void
+
+/** CCS 12's menus; on macOS the app menu comes first and takes Settings and Quit. */
+export function menuTemplate(platform: NodeJS.Platform, send: Send): MenuItemConstructorOptions[] {
+  const mac = platform === 'darwin'
+  const sep: MenuItemConstructorOptions = { type: 'separator' }
+  const appMenu: MenuItemConstructorOptions[] = mac
+    ? [
+        {
+          label: 'DSP LabSim',
+          submenu: [
+            { role: 'about' },
+            sep,
+            { label: 'Settings...', accelerator: 'Cmd+,', click: send('window.preferences') },
+            sep,
+            { role: 'hide' },
+            { role: 'hideOthers' },
+            { role: 'unhide' },
+            sep,
+            { role: 'quit' }
+          ]
+        }
+      ]
+    : []
+  return [
+    ...appMenu,
     {
       label: 'File',
       submenu: [
         { label: 'New', submenu: [{ label: 'CCS Project...', click: send('file.newProject') }] },
-        { type: 'separator' },
+        sep,
         { label: 'Save', accelerator: 'CmdOrCtrl+S', click: send('file.save') },
         { label: 'Save All', accelerator: 'CmdOrCtrl+Shift+S', click: send('file.saveAll') },
-        { type: 'separator' },
+        sep,
         { label: 'Refresh', click: send('file.refresh') },
         { label: 'Switch Workspace...', click: send('file.switchWorkspace') },
-        { type: 'separator' },
-        { role: 'quit', label: 'Exit' }
+        ...(mac ? [] : [sep, { role: 'quit', label: 'Exit' } as MenuItemConstructorOptions])
       ]
     },
-    { label: 'Edit', submenu: [{ role: 'cut' }, { role: 'copy' }, { role: 'paste' }] },
+    // macOS needs these roles for Cmd+Z/A to work in text fields; on Windows the keys already reach the page.
+    mac
+      ? { label: 'Edit', submenu: [{ role: 'undo' }, { role: 'redo' }, sep, { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }] }
+      : { label: 'Edit', submenu: [{ role: 'cut' }, { role: 'copy' }, { role: 'paste' }] },
     { label: 'View', submenu: [{ label: 'Memory Browser', click: send('view.memoryBrowser') }] },
     {
       label: 'Project',
@@ -33,13 +58,13 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
       // The renderer handles these keys (Monaco would take F8, the window Ctrl+R); the menu only shows them.
       submenu: [
         { label: 'Debug', accelerator: 'F11', registerAccelerator: false, click: send('run.debug') },
-        { type: 'separator' },
+        sep,
         { label: 'Resume', accelerator: 'F8', registerAccelerator: false, click: send('run.resume') },
         { label: 'Suspend', accelerator: 'Alt+F8', registerAccelerator: false, click: send('run.suspend') },
         { label: 'Terminate', accelerator: 'Ctrl+F2', registerAccelerator: false, click: send('run.terminate') },
         { label: 'Restart', click: send('run.restart') },
         { label: 'Reload Program', click: send('run.reload') },
-        { type: 'separator' },
+        sep,
         { label: 'Step Into', accelerator: 'F5', registerAccelerator: false, click: send('run.stepInto') },
         { label: 'Step Over', accelerator: 'F6', registerAccelerator: false, click: send('run.stepOver') },
         { label: 'Step Return', accelerator: 'F7', registerAccelerator: false, click: send('run.stepReturn') },
@@ -57,12 +82,16 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
             { label: 'CCS Debug', click: send('window.debugPerspective') }
           ]
         },
-        { label: 'Preferences...', click: send('window.preferences') },
-        { type: 'separator' },
+        ...(mac ? [] : [{ label: 'Preferences...', click: send('window.preferences') } as MenuItemConstructorOptions]),
+        sep,
         { role: 'toggleDevTools' },
         { role: 'reload', accelerator: 'CmdOrCtrl+Shift+R' }
       ]
     }
   ]
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+}
+
+export function buildMenu(getWindow: () => BrowserWindow | null): void {
+  const send: Send = (cmd) => (): void => getWindow()?.webContents.send('menu', cmd)
+  Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate(process.platform, send)))
 }

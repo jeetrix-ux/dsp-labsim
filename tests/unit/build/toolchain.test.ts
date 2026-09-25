@@ -2,12 +2,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { compareVersions, findToolchain } from '../../../src/main/build/toolchain'
+import { CL6X, compareVersions, findToolchain, tiRoots } from '../../../src/main/build/toolchain'
 
 let ti: string
 function fakeCgt(dir: string): string {
   mkdirSync(join(dir, 'bin'), { recursive: true })
-  writeFileSync(join(dir, 'bin', 'cl6x.exe'), '')
+  writeFileSync(join(dir, 'bin', CL6X), '')
   return dir
 }
 beforeEach(() => { ti = mkdtempSync(join(tmpdir(), 'labsim-ti-')) })
@@ -26,7 +26,13 @@ describe('findToolchain', () => {
     const root = fakeCgt(join(ti, 'ccs1281', 'ccs', 'tools', 'compiler', 'ti-cgt-c6000_8.3.12'))
     fakeCgt(join(ti, 'ccs1281', 'ccs', 'tools', 'compiler', 'ti-cgt-arm_20.2.7.LTS'))
     const tc = await findToolchain(undefined, ti)
-    expect(tc).toEqual({ root, version: '8.3.12', cl6x: join(root, 'bin', 'cl6x.exe') })
+    expect(tc).toEqual({ root, version: '8.3.12', cl6x: join(root, 'bin', CL6X) })
+  })
+  it('searches every TI root for this OS', async () => {
+    const root = fakeCgt(join(ti, 'ccs2000', 'ccs', 'tools', 'compiler', 'ti-cgt-c6000_8.3.13'))
+    expect((await findToolchain(undefined, [join(ti, 'missing'), ti]))?.root).toBe(root)
+    expect(CL6X).toBe(process.platform === 'win32' ? 'cl6x.exe' : 'cl6x')
+    expect(tiRoots()).toEqual(process.platform === 'win32' ? ['C:\\ti'] : ['/Applications/ti', join(process.env.HOME ?? '', 'ti')])
   })
   it('prefers the newest of several installs, including standalone ones', async () => {
     fakeCgt(join(ti, 'ccs1281', 'ccs', 'tools', 'compiler', 'ti-cgt-c6000_8.3.12'))

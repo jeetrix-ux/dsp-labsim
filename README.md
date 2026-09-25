@@ -13,13 +13,29 @@ Practise the TMS320C6748 (LCDK) DSP lab without the board. DSP LabSim looks and 
 - **View > Memory Browser.** An address or symbol, in hex, int, float or character formats.
 - **File > New > CCS Project.** `main.c`, `C6748.cmd` and `labsim.json`.
 
-## Use it
+## Download and first run
 
-Download `DSP-LabSim-<version>-portable.exe` and run it. There is nothing to install.
+Get the latest version from the [Releases page](https://github.com/jeetrix-ux/dsp-labsim/releases/latest).
 
-- **Workspace.** It opens `%USERPROFILE%\workspace_v12` if that exists; switch with File > Switch Workspace.
-- **Build output.** It goes to `<project>\.labsim\Debug`, so CCS's own `Debug` folder is never touched.
-- **Compiler.** It is auto-detected under `C:\ti`. Choose another in Window > Preferences.
+### Windows
+
+1. Download `DSP-LabSim-Setup-X.Y.Z.exe` (installs, with a Start-menu entry) or `DSP-LabSim-X.Y.Z-portable.exe` (runs from anywhere, nothing installed).
+2. If Windows says **"Windows protected your PC"**, click **More info → Run anyway**. This happens once, because the app is not code-signed.
+3. With Code Composer Studio 12 installed, builds use TI's `cl6x`; otherwise they use LabSim's own C compiler.
+
+### macOS (Apple Silicon or Intel)
+
+1. Download `DSP-LabSim-X.Y.Z-universal.dmg`, open it and drag **DSP LabSim** into **Applications**.
+2. Open it once. macOS says it cannot verify the app. Go to **System Settings → Privacy & Security** and click **Open Anyway**. Or run this once in Terminal: `xattr -dr com.apple.quarantine "/Applications/DSP LabSim.app"`.
+3. Builds use LabSim's own C compiler: TI's C6000 compiler is not available for macOS. Projects copied from a Windows CCS workspace open unchanged.
+
+### Both
+
+- **Workspace.** It opens `~/workspace_v12` (`%USERPROFILE%\workspace_v12` on Windows) if that exists. Switch with **File → Switch Workspace**, or start a project with **File → New → CCS Project**.
+- **Build output.** It goes to `<project>/.labsim/Debug`, so CCS's own `Debug` folder is never touched.
+- **Compiler.** It is auto-detected under `C:\ti` (Windows) or `/Applications/ti` and `~/ti` (macOS). Choose another in **Window → Preferences** (on macOS: **DSP LabSim → Settings**).
+- **Pop-out windows.** The small button at the right end of the editor's and the graphs' tab bars moves that view into its own window. Close the window to bring it back.
+- **Not supported.** Programs that need the LCDK's audio codec, McASP, EDMA or interrupts cannot run. Cycle counts from `TSCL` are estimates.
 
 ### `labsim.json`
 

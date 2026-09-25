@@ -2,16 +2,13 @@ import Editor, { type OnMount } from '@monaco-editor/react'
 import * as monaco from 'monaco-editor'
 import { useCallback, useEffect, useRef, type JSX } from 'react'
 import type { editor as MonacoEditor } from 'monaco-editor'
-import { languageFor } from '@shared/files'
+import { languageFor, samePath, toModelPath } from '@shared/files'
 import { appStore, debugStore, useApp, useDebug } from '../appStore'
-import { samePath as sameFile } from '../debugStore'
 import { isDirty } from '../store'
 import { PopoutButton } from './PopoutButton'
 
-/** Monaco model URI for a Windows path. `Uri.parse('C:\\x')` would treat `c:` as a scheme. */
-export const toModelPath = (p: string): string => 'file:///' + p.replace(/\\/g, '/')
-
-const samePath = (a: string, b: string): boolean => a.replace(/\//g, '\\').toLowerCase() === b.replace(/\//g, '\\').toLowerCase()
+export { toModelPath }
+const sameFile = samePath
 
 export async function requestClose(path: string): Promise<void> {
   const s = appStore.getState()
