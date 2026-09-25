@@ -4,6 +4,7 @@
   "private": true,
   "description": "Practise TMS320C6748 DSP lab code without the board: CCS-style build, debug and graphs.",
   "author": "DSP LabSim",
+  "license": "MIT",
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
