@@ -150,3 +150,8 @@ table.grid td { padding: 2px 6px; border-bottom: 1px solid #f0f0f0; }
 .memory-table td { padding: 1px 10px 1px 0; white-space: nowrap; }
 .mem-addr { padding-left: 8px !important; color: #1f4f86; }
 .memory-error { padding: 8px; color: #c9302c; }
+.popout-btn { display: inline-flex; align-items: center; justify-content: center; width: 24px; margin: 0 4px; border: 1px solid transparent; border-radius: 3px; background: none; color: var(--muted); cursor: pointer; }
+.popout-btn:hover { border-color: var(--border); background: #fff; color: var(--text); }
+.popout-body { margin: 0; height: 100vh; overflow: hidden; background: var(--bg); }
+.popout-root { height: 100%; padding: 4px; box-sizing: border-box; }
+.popped-placeholder { align-items: center; justify-content: center; }

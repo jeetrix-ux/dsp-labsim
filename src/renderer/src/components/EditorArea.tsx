@@ -6,6 +6,7 @@ import { languageFor } from '@shared/files'
 import { appStore, debugStore, useApp, useDebug } from '../appStore'
 import { samePath as sameFile } from '../debugStore'
 import { isDirty } from '../store'
+import { PopoutButton } from './PopoutButton'
 
 /** Monaco model URI for a Windows path. `Uri.parse('C:\\x')` would treat `c:` as a scheme. */
 export const toModelPath = (p: string): string => 'file:///' + p.replace(/\\/g, '/')
@@ -40,7 +41,8 @@ export function getCursorLine(): number | null {
   return activeEditor?.getPosition()?.lineNumber ?? null
 }
 
-export function EditorArea(): JSX.Element {
+/** The editor tabs; in the main window it offers Pop Out, in the pop-out window Dock. */
+export function EditorArea({ popped = false }: { popped?: boolean }): JSX.Element {
   const tabs = useApp((s) => s.tabs)
   const active = useApp((s) => s.activeTab)
   const tab = tabs.find((t) => t.path === active)
@@ -157,6 +159,8 @@ export function EditorArea(): JSX.Element {
             </button>
           </div>
         ))}
+        <span className="tb-spacer" />
+        <PopoutButton view="editor" popped={popped} />
       </div>
       <div className="editor-host">
         {tab ? (

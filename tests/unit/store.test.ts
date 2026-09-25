@@ -295,3 +295,13 @@ describe('bottom panel', () => {
     expect(store.getState().bottomTab).toBe('memory')
   })
 })
+
+describe('pop-out windows', () => {
+  it('tracks which views are in their own window', () => {
+    expect(store.getState().popout).toEqual({ editor: false, graphs: false })
+    store.getState().setPopout('editor', true)
+    store.getState().setPopout('graphs', true)
+    store.getState().setPopout('editor', false)
+    expect(store.getState().popout).toEqual({ editor: false, graphs: true })
+  })
+})

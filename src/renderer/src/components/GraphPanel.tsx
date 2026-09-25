@@ -3,6 +3,7 @@ import { graphStore, useGraphs } from '../appStore'
 import { fitView, fmtNum, nearestSample, xValue } from '../graph/model'
 import { drawGraph, fromPx, layoutFor } from '../graph/plot'
 import type { Graph } from '../graphStore'
+import { PopoutButton } from './PopoutButton'
 
 const errorText = (e: unknown): string => (e instanceof Error ? e.message : String(e))
 const act = (p: Promise<unknown>): void => {
@@ -28,7 +29,9 @@ function GraphView({ graph }: { graph: Graph }): JSX.Element {
   useEffect(() => {
     const host = hostRef.current
     if (!host) return
-    const ro = new ResizeObserver(() => setSize({ w: host.clientWidth, h: host.clientHeight }))
+    // In a pop-out, observe with that window's ResizeObserver: an observer only sees its own document.
+    const Observer = host.ownerDocument.defaultView?.ResizeObserver ?? ResizeObserver
+    const ro = new Observer(() => setSize({ w: host.clientWidth, h: host.clientHeight }))
     ro.observe(host)
     return () => ro.disconnect()
   }, [])
@@ -36,7 +39,7 @@ function GraphView({ graph }: { graph: Graph }): JSX.Element {
   useEffect(() => {
     const c = canvasRef.current
     if (!c || size.w === 0 || size.h === 0) return
-    const dpr = window.devicePixelRatio || 1
+    const dpr = c.ownerDocument.defaultView?.devicePixelRatio || 1
     c.width = Math.round(size.w * dpr)
     c.height = Math.round(size.h * dpr)
     const ctx = c.getContext('2d')
@@ -79,7 +82,8 @@ function GraphView({ graph }: { graph: Graph }): JSX.Element {
   )
 }
 
-export function GraphPanel(): JSX.Element {
+/** The graph tabs; in the main window it offers Pop Out, in the pop-out window Dock. */
+export function GraphPanel({ popped = false }: { popped?: boolean }): JSX.Element {
   const graphs = useGraphs((s) => s.graphs)
   const active = useGraphs((s) => s.active)
   const shown = graphs.find((g) => g.id === active) ?? graphs[0]
@@ -93,6 +97,8 @@ export function GraphPanel(): JSX.Element {
             <button className="tab-close" aria-label={`Close ${g.title}`} onMouseDown={(e) => e.stopPropagation()} onClick={() => st.close(g.id)}>×</button>
           </div>
         ))}
+        <span className="tb-spacer" />
+        <PopoutButton view="graphs" popped={popped} />
       </div>
       <div className="view-body graph-body">{shown && <GraphView key={shown.id} graph={shown} />}</div>
     </div>

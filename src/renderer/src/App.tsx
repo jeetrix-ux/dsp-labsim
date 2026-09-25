@@ -12,7 +12,9 @@ import { NewProjectDialog } from './components/NewProjectDialog'
 import { PreferencesDialog } from './components/PreferencesDialog'
 import { ProjectExplorer } from './components/ProjectExplorer'
 import { Splitter } from './components/Splitter'
+import { PopoutWindow } from './components/PopoutWindow'
 import { Toolbar } from './components/Toolbar'
+import type { PopoutView } from './store'
 
 function runToCursor(): void {
   const file = appStore.getState().activeTab
@@ -30,6 +32,18 @@ const KEYS: Record<string, MenuCommand> = {
   F6: 'run.stepOver',
   F7: 'run.stepReturn',
   'Ctrl+R': 'run.toLine'
+}
+
+/** Stands in for a view that is in its own window. */
+function Popped({ view, label }: { view: PopoutView; label: string }): JSX.Element {
+  return (
+    <div className="view popped-placeholder">
+      <div className="empty">
+        The {label} is in its own window.{' '}
+        <button className="link-btn" onClick={() => appStore.getState().setPopout(view, false)}>Bring it back</button>
+      </div>
+    </div>
+  )
 }
 
 function onKey(e: KeyboardEvent): void {
@@ -82,6 +96,13 @@ export function App(): JSX.Element {
   const active = useApp((s) => s.activeTab)
   const dirtyCount = useApp((s) => s.tabs.filter(isDirty).length)
   const graphCount = useGraphs((s) => s.graphs.length)
+  const poppedEditor = useApp((s) => s.popout.editor)
+  const poppedGraphs = useApp((s) => s.popout.graphs)
+
+  // Closing the last graph also closes its window; open the next graph docked again.
+  useEffect(() => {
+    if (graphCount === 0 && poppedGraphs) appStore.getState().setPopout('graphs', false)
+  }, [graphCount, poppedGraphs])
 
   useEffect(() => {
     void appStore.getState().init()
@@ -114,14 +135,17 @@ export function App(): JSX.Element {
     return () => window.removeEventListener('beforeunload', onBeforeUnload)
   }, [dirtyCount])
 
-  const editor =
-    perspective === 'debug' && graphCount > 0 ? (
-      <Splitter key="with-graphs" direction="row" size={560} fixed="second">
-        {[<EditorArea key="editor" />, <GraphPanel key="graphs" />]}
-      </Splitter>
-    ) : (
-      <EditorArea key="editor" />
-    )
+  // A popped-out view leaves the main window; the other one takes its space.
+  const dockedGraphs = perspective === 'debug' && graphCount > 0 && !poppedGraphs
+  const editor = poppedEditor ? (
+    dockedGraphs ? <GraphPanel key="graphs" /> : <Popped key="popped" view="editor" label="editor" />
+  ) : dockedGraphs ? (
+    <Splitter key="with-graphs" direction="row" size={560} fixed="second">
+      {[<EditorArea key="editor" />, <GraphPanel key="graphs" />]}
+    </Splitter>
+  ) : (
+    <EditorArea key="editor" />
+  )
 
   const editorAndConsole = (
     <Splitter direction="column" size={220} fixed="second">
@@ -151,6 +175,16 @@ export function App(): JSX.Element {
       <GraphPropertiesDialog />
       <NewProjectDialog />
       <PreferencesDialog />
+      {poppedEditor && (
+        <PopoutWindow name="labsim-editor" title="Editor - DSP LabSim" width={1000} height={800} onKey={onKey} onClosed={() => appStore.getState().setPopout('editor', false)}>
+          <EditorArea popped />
+        </PopoutWindow>
+      )}
+      {poppedGraphs && graphCount > 0 && (
+        <PopoutWindow name="labsim-graphs" title="Graphs - DSP LabSim" width={900} height={600} onKey={onKey} onClosed={() => appStore.getState().setPopout('graphs', false)}>
+          <GraphPanel popped />
+        </PopoutWindow>
+      )}
     </div>
   )
 }

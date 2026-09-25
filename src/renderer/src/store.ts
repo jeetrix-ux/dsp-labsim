@@ -24,6 +24,9 @@ export const isDirty = (t: EditorTab): boolean => t.content !== t.savedContent
 
 export type DialogKind = 'newProject' | 'preferences'
 
+/** Views that can be popped out into their own window. */
+export type PopoutView = 'editor' | 'graphs'
+
 /** An IPC rejection's message without Electron's "Error invoking remote method 'x': Error: " prefix. */
 export const ipcError = (e: unknown): string =>
   (e instanceof Error ? e.message : String(e)).replace(/^Error invoking remote method '[^']+': (Error: )?/, '')
@@ -78,6 +81,9 @@ export interface AppState {
   loadCompiler(): Promise<void>
   autoDetectCompiler(): Promise<void>
   dialog: DialogKind | null
+  /** Which views are in their own window. */
+  popout: Record<PopoutView, boolean>
+  setPopout(view: PopoutView, open: boolean): void
   openDialog(d: DialogKind): void
   closeDialog(): void
   /** File > New > CCS Project; resolves to an error to show in the dialog, or null when done. */
@@ -100,6 +106,7 @@ export function createAppStore(api: LabsimApi) {
     activeConsole: MAIN_CONSOLE,
     bottomTab: 'console',
     dialog: null,
+    popout: { editor: false, graphs: false },
     compiler: null,
     building: false,
     diagnostics: [],
@@ -269,6 +276,10 @@ export function createAppStore(api: LabsimApi) {
       if (tc) get().print(MAIN_CONSOLE, `C6000 compiler: ${tc.root} (v${tc.version}), auto-detected`, 'info')
       else get().print(MAIN_CONSOLE, 'C6000 compiler: not found by auto-detect; builds will use the LabSim front-end.', 'info')
       await get().loadCompiler()
+    },
+
+    setPopout(view, open) {
+      set((s) => ({ popout: { ...s.popout, [view]: open } }))
     },
 
     openDialog(dialog) {
