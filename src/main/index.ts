@@ -25,6 +25,16 @@ function createWindow(): BrowserWindow {
     webPreferences: { preload: join(__dirname, '../preload/index.js'), sandbox: true, contextIsolation: true }
   })
   win.once('ready-to-show', () => win.show())
+  // Pop-out editor/graph windows (window.open from the renderer, which then renders into them).
+  win.webContents.setWindowOpenHandler(({ frameName, url }) =>
+    frameName.startsWith('labsim-') && url === 'about:blank'
+      ? { action: 'allow', overrideBrowserWindowOptions: { autoHideMenuBar: true, backgroundColor: '#e8ebef', minWidth: 400, minHeight: 300 } }
+      : { action: 'deny' }
+  )
+  // Pop-outs belong to this window: close them with it so the app can quit.
+  win.on('closed', () => {
+    for (const w of BrowserWindow.getAllWindows()) if (w !== win && !w.isDestroyed()) w.destroy()
+  })
   // The renderer blocks unload while files are modified; ask before discarding them.
   win.webContents.on('will-prevent-unload', (event) => {
     const choice = dialog.showMessageBoxSync(win, {
