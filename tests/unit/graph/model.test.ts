@@ -100,6 +100,14 @@ describe('axes', () => {
     expect(zoomView({ x0: 0, x1: 10, y0: -2, y1: 2 }, 0.5)).toEqual({ x0: 2.5, x1: 7.5, y0: -1, y1: 1 })
   })
 
+  it('leaves half a sample either side for stems, so the first and last are not hidden by the frame', () => {
+    const v = fitView([13, 0.4, 3.6], props({ displayDataSize: 8, dataPlotStyle: 'Bar' }))
+    expect([v.x0, v.x1]).toEqual([-0.5, 7.5])
+    const t = fitView([1], props({ displayDataSize: 8, dataPlotStyle: 'Bar', samplingRateHz: 1000, timeDisplayUnit: 'ms' }))
+    expect(t.x0).toBeCloseTo(-0.5)
+    expect(t.x1).toBeCloseTo(7.5)
+  })
+
   it('plots log magnitude in dB', () => {
     const p = props({ magnitudeDisplayScale: 'Log' })
     expect(plotValue(-100, p)).toBeCloseTo(40)

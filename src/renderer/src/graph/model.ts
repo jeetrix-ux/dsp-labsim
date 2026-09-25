@@ -231,7 +231,9 @@ export function fitView(buffer: number[], p: GraphProps): View {
     hi += 1
   }
   const pad = (hi - lo) * 0.05
-  return { x0: xValue(0, p), x1: xValue(n - 1, p), y0: lo - pad, y1: hi + pad }
+  // Stems sit on the samples, so leave half a sample either side or the first and last hide under the frame.
+  const edge = p.dataPlotStyle === 'Bar' ? 0.5 : 0
+  return { x0: xValue(0 - edge, p), x1: xValue(n - 1 + edge, p), y0: lo - pad, y1: hi + pad }
 }
 
 /** Scales the view about its centre (factor < 1 zooms in). */

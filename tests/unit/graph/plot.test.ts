@@ -62,7 +62,10 @@ describe('plot', () => {
       width: 400,
       height: 300
     })
-    expect(calls.filter((c) => c.op === 'fillRect' && c.fillStyle === COLORS.trace)).toHaveLength(3)
+    const stems = calls.filter((c) => c.op === 'fillRect' && c.fillStyle === COLORS.trace)
+    expect(stems).toHaveLength(3)
+    // Thin stems (a discrete-value plot), not wide bars, however far apart the samples are.
+    expect(stems.map((c) => c.args[2])).toEqual([2, 2, 2])
     expect(calls.some((c) => c.op === 'stroke' && c.strokeStyle === COLORS.minor)).toBe(true)
     expect(calls.some((c) => c.op === 'setLineDash' && (c.args[0] as number[]).length > 0)).toBe(true)
   })
