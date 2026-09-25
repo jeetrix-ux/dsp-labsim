@@ -6,16 +6,18 @@ import { isStale, parseDepFile } from '../../../src/main/build/depfile'
 
 describe('parseDepFile', () => {
   it('resolves every dependency against the build directory', () => {
+    // Absolute paths as cl6x writes them on this OS.
+    const abs = process.platform === 'win32' ? 'C:/' : '/'
     const text = [
       'main.obj: ../../main.c',
-      'main.obj: C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-c6000_8.3.12/include/stdio.h',
-      'main.obj: C:/ws/fir\\ lowpass/coeffs.h',
+      `main.obj: ${abs}ti/ccs1281/ccs/tools/compiler/ti-cgt-c6000_8.3.12/include/stdio.h`,
+      `main.obj: ${abs}ws/fir\\ lowpass/coeffs.h`,
       ''
     ].join('\r\n')
-    expect(parseDepFile(text, 'C:\\ws\\p\\.labsim\\Debug')).toEqual([
-      join('C:\\ws\\p', 'main.c'),
-      join('C:/ti/ccs1281/ccs/tools/compiler/ti-cgt-c6000_8.3.12/include/stdio.h'),
-      join('C:/ws/fir lowpass/coeffs.h')
+    expect(parseDepFile(text, join(`${abs}ws`, 'p', '.labsim', 'Debug'))).toEqual([
+      join(`${abs}ws`, 'p', 'main.c'),
+      join(`${abs}ti/ccs1281/ccs/tools/compiler/ti-cgt-c6000_8.3.12/include/stdio.h`),
+      join(`${abs}ws/fir lowpass/coeffs.h`)
     ])
   })
 })

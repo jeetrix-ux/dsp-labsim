@@ -53,8 +53,9 @@ describe('assertInside', () => {
   })
   it('rejects escapes and foreign absolute paths', () => {
     expect(() => assertInside(ws, join(ws, '..', 'evil.c'))).toThrow('Path outside workspace')
-    expect(() => assertInside(ws, 'C:\\Windows\\win.ini')).toThrow('Path outside workspace')
-    expect(() => assertInside(ws, ws + '-other\\a.c')).toThrow('Path outside workspace')
+    const foreign = process.platform === 'win32' ? 'C:\\Windows\\win.ini' : '/etc/hosts'
+    expect(() => assertInside(ws, foreign)).toThrow('Path outside workspace')
+    expect(() => assertInside(ws, join(ws + '-other', 'a.c'))).toThrow('Path outside workspace')
   })
 })
 

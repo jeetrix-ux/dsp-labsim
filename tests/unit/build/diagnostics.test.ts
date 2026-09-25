@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { join } from 'path'
 import { parseDiagnostics } from '../../../src/main/build/diagnostics'
 
-const CWD = 'C:\\ws\\bad\\.labsim\\Debug'
-const MAIN = join('C:\\ws\\bad', 'main.c')
+// Real paths on this OS: the parser resolves cl6x's relative file names with `path`.
+const ROOT = process.platform === 'win32' ? 'C:\\ws' : '/ws'
+const CWD = join(ROOT, 'bad', '.labsim', 'Debug')
+const MAIN = join(ROOT, 'bad', 'main.c')
 
 const COMPILE = [
   '"../../main.c", line 6: error #20: identifier "y" is undefined',
