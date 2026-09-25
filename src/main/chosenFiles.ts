@@ -1,6 +1,7 @@
 import * as path from 'path'
 
-const norm = (p: string): string => path.win32.resolve(p).toLowerCase()
+/** Windows paths compare in any case; macOS keeps the path as the dialog returned it. */
+const norm = (p: string): string => (process.platform === 'win32' ? path.resolve(p).toLowerCase() : path.resolve(p))
 
 /** Paths the user picked in a save dialog: the only files the renderer may write outside the workspace. */
 export class ChosenFiles {

@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs'
 import * as path from 'path'
 import { validateNewProject, type NewProjectOptions } from '@shared/newProject'
+import { tiRoots } from './build/toolchain'
 
 /** CCS's "Empty Project (with main.c)" template, with Windows line ends as CCS writes it. */
 export const MAIN_C_TEMPLATE = ['', '/**', ' * main.c', ' */', 'int main(void)', '{', '\treturn 0;', '}', ''].join('\r\n')
@@ -23,21 +24,23 @@ export async function createProject(workspace: string, o: NewProjectOptions, lin
   return dir
 }
 
-/** CCS's own C6748.cmd from the newest CCS install under tiRoot, else the copy shipped with LabSim. */
-export async function findLinkerCmd(bundled: string, tiRoot = 'C:\\ti'): Promise<string> {
-  let installs: string[] = []
-  try {
-    installs = (await fs.readdir(tiRoot)).filter((n) => /^ccs\d+$/i.test(n)).sort().reverse()
-  } catch {
-    return bundled
-  }
-  for (const d of installs) {
-    const p = path.join(tiRoot, d, 'ccs', 'ccs_base', 'c6000', 'include', 'C6748.cmd')
+/** CCS's own C6748.cmd from the newest CCS install under a TI root, else the copy shipped with LabSim. */
+export async function findLinkerCmd(bundled: string, roots: string | string[] = tiRoots()): Promise<string> {
+  for (const tiRoot of typeof roots === 'string' ? [roots] : roots) {
+    let installs: string[] = []
     try {
-      await fs.access(p)
-      return p
+      installs = (await fs.readdir(tiRoot)).filter((n) => /^ccs\d+$/i.test(n)).sort().reverse()
     } catch {
-      // not in this install
+      continue
+    }
+    for (const d of installs) {
+      const p = path.join(tiRoot, d, 'ccs', 'ccs_base', 'c6000', 'include', 'C6748.cmd')
+      try {
+        await fs.access(p)
+        return p
+      } catch {
+        // not in this install
+      }
     }
   }
   return bundled

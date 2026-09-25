@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla'
 import type { BuildKind, BuildOutputLine, BuildResult, Diagnostic, CompilerInfo, FileNode, LabsimApi, NewProjectOptions, ProjectInfo } from '@shared/api'
-import { basename, isTextFile } from '@shared/files'
+import { basename, isTextFile, joinPath } from '@shared/files'
 
 export type Perspective = 'edit' | 'debug'
 export type BottomTab = 'console' | 'problems' | 'memory'
@@ -300,7 +300,7 @@ export function createAppStore(api: LabsimApi) {
       await get().refresh()
       set({ selectedProject: dir, dialog: null })
       if (!get().expanded[dir]) await get().toggleExpand(dir)
-      await get().openFile(`${dir}\\main.c`)
+      await get().openFile(joinPath(dir, 'main.c'))
       get().print(MAIN_CONSOLE, `Created project ${o.name} in ${dir}`, 'info')
       return null
     },

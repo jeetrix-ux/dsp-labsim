@@ -11,7 +11,7 @@ import { debugLaunch } from './debug/launch'
 import { ChosenFiles } from './chosenFiles'
 import { DebugSession } from './debug/session'
 import { createProject, findLinkerCmd } from './newProject'
-import { toolchainAt } from './build/toolchain'
+import { CL6X, toolchainAt } from './build/toolchain'
 import { assertInside, listProjects, readTextFile, readTree, writeTextFile } from './workspace'
 
 export interface IpcContext {
@@ -58,7 +58,7 @@ export function registerIpc(ctx: IpcContext): void {
   ipcMain.handle('build:chooseCompiler', async () => {
     const dir = await pickFolder('Select the C6000 compiler folder (ti-cgt-c6000_x.y.z)')
     if (!dir) return ctx.getToolchain()
-    if (!(await toolchainAt(dir))) throw new Error(`${dir} does not contain bin\\cl6x.exe`)
+    if (!(await toolchainAt(dir))) throw new Error(`${dir} does not contain ${path.join('bin', CL6X)}`)
     return ctx.setCompilerRoot(dir)
   })
   ipcMain.handle('build:compilerInfo', async () => ({ toolchain: ctx.getToolchain(), chosen: await ctx.compilerChosen() }))
