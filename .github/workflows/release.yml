@@ -5,7 +5,17 @@ on:
 permissions:
   contents: write
 jobs:
+  # Create the draft once, so the Windows and macOS jobs upload into the same release instead of racing.
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh release view "$TAG" --repo "$REPO" > /dev/null 2>&1 || gh release create "$TAG" --repo "$REPO" --draft --title "DSP LabSim ${TAG#v}" --notes "Installers are being built."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
   build:
+    needs: draft
     strategy:
       fail-fast: false
       matrix:
